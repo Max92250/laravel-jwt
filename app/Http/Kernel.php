@@ -44,6 +44,16 @@ class Kernel extends HttpKernel
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
     ];
+    protected $routeMiddleware = [
+   
+
+        'jwt.verify' => \App\Http\Middleware\ParseTokenAuthenticate::class,
+        'jwt.auth' => 'Tymon\JWTAuth\Middleware\GetUserFromToken',
+        'jwt.refresh' => 'Tymon\JWTAuth\Middleware\RefreshToken',
+    
+        
+    ];
+    
 
     /**
      * The application's middleware aliases.

@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Auth;
+use Carbon\Carbon;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
@@ -19,7 +20,12 @@ class RegisterController extends Controller
             return response()->json(['error' => $validator->errors()], 400);
         }
 
-        $user = $this->create($request->all());
+        $data = $request->all();
+
+        $data['created_at'] = Carbon::now();
+
+
+        $user = $this->create($data);
 
         return response()->json(['message' => 'User registered successfully'], 201);
     }
@@ -43,6 +49,9 @@ class RegisterController extends Controller
             'gender' => $data['gender'],
             'department' => $data['department'] ?? null,
             'phone_number' => $data['phone_number'],
+            'created_at' => $data['created_at'],
         ]);
+
+       
     }
 }

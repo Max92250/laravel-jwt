@@ -19,11 +19,13 @@ return new class extends Migration
             $table->string('password');
             $table->enum('gender', ['Male', 'Female']);
             $table->string('department')->nullable(); 
-            $table->string('phone_number')->nullable();
-            $table->timestamp('email_verified_at')->nullable();
-           
+            $table->string('phone_number');
+            $table->timestamp('email_verified_at')
+            ->nullable();
+            $table->timestamp('created_at')->useCurrent(); 
+            $table->timestamp('updated_at')->nullable();
             $table->rememberToken();
-            $table->timestamps();
+       
         });
     }
 
