@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Auth;
+
 use JWTAuth;
 use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Exceptions\JWTException;
@@ -10,43 +11,71 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
-class loginController extends Controller
+class LoginController extends Controller
 {
     public function login(Request $request)
-{
-    $credentials = $request->only('email', 'password');
+    {
+        $credentials = $request->only('email', 'password');
+        $this->validateCredentials($credentials);
 
-    $validator = Validator::make($credentials, [
-        'email' => 'required|string',
-        'password' => 'required|string',
-    ]);
+        $token = $this->attemptLogin( $credentials);
+        $user = $this->getUserByEmail($credentials['email']);
+        $this->updateUserStatus($user, true);
 
-    if ($validator->fails()) {
-        return response()->json(['error' => $validator->messages()], 422);
+        return $this->respondWithToken($token);
     }
 
-    try {
-        $token = JWTAuth::attempt($credentials);
-
-        if (!$token) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Invalid credentials.',
-            ], 401);
-        }
-
-        return response()->json([
-            'success' => true,
-            'data' => ['token' => $token],
+    private function validateCredentials(array $credentials)
+    {
+        $validator = Validator::make($credentials, [
+            'email' => 'required|string',
+            'password' => 'required|string',
         ]);
 
-    } catch (JWTException $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Could not create token.',
-        ], 500);
+        if ($validator->fails()) {
+            return $this->respondValidationError($validator);
+        }
     }
-}
-    
-    
+
+    private function attemptLogin( array $credentials)
+    {
+        try {
+            $token = JWTAuth::attempt($credentials);
+
+            if (!$token) {
+                return $this->respondInvalidCredentials();
+            }
+
+            return $token;
+        } catch (JWTException $e) {
+            return response()->json(['success' => false, 'message' => 'Unable to generate token'], 500);
+        }
+    }
+
+    private function getUserByEmail($email)
+    {
+        return User::where('email', $email)->first();
+    }
+
+    private function updateUserStatus(User $user, $status)
+    {
+        if ($user->active == 0) {
+            $user->update(['active' => 1]);
+        }
+    }
+
+    private function respondValidationError($validator)
+    {
+        return response()->json(['success' => false, 'error' => $validator->messages()], 422);
+    }
+
+    private function respondInvalidCredentials()
+    {
+        return response()->json(['success' => false, 'message' => 'Invalid credentials.'], 401);
+    }
+
+    private function respondWithToken($token)
+    {
+        return response()->json(['success' => true, 'data' => ['token' => $token]], 200);
+    }
 }

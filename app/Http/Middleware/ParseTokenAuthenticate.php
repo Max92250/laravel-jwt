@@ -13,42 +13,29 @@ use Tymon\JWTAuth\Http\Middleware\BaseMiddleware;
 
 class ParseTokenAuthenticate
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     */
-    public function handle(Request $request, Closure $next): Response
+    public function handle($request, Closure $next)
     {
         try {
-            $tokens = $request->header('Authorization');
+            $token = $request->header('Authorization');
 
-            if (!$tokens) {
+            if (!$token) {
                 return response()->json(['error' => 'Authorization token not found'], 401);
             }
-    
+
             try {
                 $parsedToken = JWTAuth::parseToken();
-          
-            $user = $parsedToken->authenticate();
+                $user = $parsedToken->authenticate();
+            
             } catch (Exception $e) {
                 return response()->json(['error' => 'Invalid token'], 401);
             }
-    
-            $token = $parsedToken->getToken();
+
+        
             $request->headers->set('Authorization', 'Bearer ' . $token);
-           
+
             return $next($request);
         } catch (Exception $e) {
-            if ($e instanceof \Tymon\JWTAuth\Exceptions\TokenInvalidException){
-                return response()->json(['status' => 'Token is Invalid']);
-            }else if ($e instanceof \Tymon\JWTAuth\Exceptions\TokenExpiredException){
-                return response()->json(['status' => 'Token is Expired']);
-            }else{
-                return response()->json(['status' => 'Authorization Token not found']);
-            }
+            return response()->json(['status' => 'Error processing token'], 500);
         }
-        return $next($request);
     }
-    
 }

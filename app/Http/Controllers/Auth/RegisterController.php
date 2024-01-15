@@ -30,7 +30,7 @@ class RegisterController extends Controller
         return response()->json(['message' => 'User registered successfully'], 201);
     }
 
-    protected function validator(array $data)
+    private function validator(array $data)
     {
         return Validator::make($data, [
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
@@ -41,7 +41,7 @@ class RegisterController extends Controller
         ]);
     }
 
-    protected function create(array $data)
+    private function create(array $data)
     {
         return User::create([
             'email' => $data['email'],

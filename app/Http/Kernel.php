@@ -42,6 +42,7 @@ class Kernel extends HttpKernel
             // \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
             \Illuminate\Routing\Middleware\ThrottleRequests::class.':api',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            
         ],
     ];
     protected $routeMiddleware = [
@@ -50,6 +51,7 @@ class Kernel extends HttpKernel
         'jwt.verify' => \App\Http\Middleware\ParseTokenAuthenticate::class,
         'jwt.auth' => 'Tymon\JWTAuth\Middleware\GetUserFromToken',
         'jwt.refresh' => 'Tymon\JWTAuth\Middleware\RefreshToken',
+        'cors'=>\App\Http\Middleware\CorsMiddleware::class,
     
         
     ];
