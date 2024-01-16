@@ -1,0 +1,30 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Image extends Model
+{
+    use HasFactory;
+    protected $fillable = [
+        'image_1',
+        'image_2',
+        'product_id'
+    ];
+    public function getImage1Attribute($value)
+    {
+        return asset('images/' . $value);
+    }
+
+    public function getImage2Attribute($value)
+    {
+        return asset('images/' . $value);
+    }
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
+    }
+}

@@ -38,9 +38,10 @@ class loginController extends Controller
 
         $user = User::where('email', $credentials['email'])->first();
 
-        $user->update(['active' => true]);
-
-       
+            if ($user && $user->active == 0) {
+                $user->update(['active' => 1]);
+               
+            }
         return response()->json([
             'success' => true,
             'data' => ['token' => $token],

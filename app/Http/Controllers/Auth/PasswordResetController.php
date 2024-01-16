@@ -33,7 +33,7 @@ class PasswordResetController extends Controller
         } else {
             $token = Str::random(64);
 
-            DB::table('password_reset_tokens')->insert([
+            DB::table('password_reset_tokwhaens')->insert([
                 'email' => $credentials['email'],
                 'token' => $token,
                 'created_at' => now(),
