@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Item;
 use App\Models\Image;
+use Illuminate\Support\Str;
+
 
 class ProductController extends Controller
 {
@@ -32,20 +34,22 @@ class ProductController extends Controller
     public function insertItem(Request $request)
     {
         $request->validate([
-            'sku' => 'required|string',
             'price' => 'required|numeric',
             'size' => 'required|string',
+            'color' => 'required|string',
             'product_id' => 'required|exists:products,id',
        
         ]);
 
         $product = Product::findOrFail($request->input('product_id'));
+        $sku = 'SKU_' . Carbon::now()->timestamp . Str::random(5);
 
         $item = $product->items()->create([
-            'sku' => $request->input('sku'),
+            'sku' =>  $sku,
             'price' => $request->input('price'),
             'size' => $request->input('size'),
-               'created_at' => Carbon::now(), 
+            'color' => $request->input('color'),
+            'created_at' => Carbon::now(), 
             'updated_at' => null, 
          
         ]);
@@ -60,6 +64,7 @@ class ProductController extends Controller
             'image_1' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'image_2' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'product_id' => 'required|exists:products,id',
+           
         ]);
 
         $product = Product::findOrFail($request->input('product_id'));
@@ -78,6 +83,8 @@ class ProductController extends Controller
             'product_id' => $request->input('product_id'),
             'image_1' => $imagePath1,
             'image_2' => $imagePath2,
+            'created_at' => now(),  
+            'updated_at' => null,
         ]);
 
       
@@ -97,4 +104,20 @@ class ProductController extends Controller
     return response()->json(['products' => $products]);
     
     }
+    public function getProductById($id)
+    {
+        $product = Product::with(['items', 'images'])
+            ->where('id', $id)
+            ->whereHas('items', function (Builder $query) {
+                $query->where('status', '=', 'active');
+            })
+            ->first();
+
+        if (!$product) {
+            return response()->json(['message' => 'Product not found'], 404);
+        }
+
+        return response()->json(['product' => $product]);
+    }
+
 }

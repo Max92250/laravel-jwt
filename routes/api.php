@@ -19,7 +19,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::post('/register', [RegisterController::class, 'register']);
 Route::post('/login', [LoginController::class, 'login']);
 Route::group(['middleware' => ['jwt.verify']], function() {
-    Route::get('/', [ProductController::class, 'getProducts']);
+    Route::get('/fetch-products', [ProductController::class, 'getProducts']);
+    Route::get('/fetch-products/{id}', [ProductController::class, 'getProductById']);
     Route::post('/products', [ProductController::class, 'insertProduct']);
     Route::post('/items', [ProductController::class, 'insertItem']);
     Route::post('/upload-image', [ProductController::class, 'uploadImage']);

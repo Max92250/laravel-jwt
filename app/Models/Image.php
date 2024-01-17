@@ -11,7 +11,9 @@ class Image extends Model
     protected $fillable = [
         'image_1',
         'image_2',
-        'product_id'
+        'product_id',
+        'created_at',
+    'updated_at',
     ];
     public function getImage1Attribute($value)
     {

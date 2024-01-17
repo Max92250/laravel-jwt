@@ -14,9 +14,9 @@ class CreateItemsTable extends Migration
             $table->string('sku');
             $table->decimal('price', 8, 2);
             $table->string('size');
+      
             $table->unsignedBigInteger('product_id');
             $table->timestamps();
-
             $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
         });
     }
