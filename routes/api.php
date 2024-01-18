@@ -11,15 +11,11 @@ use Illuminate\Support\Facades\Route;
 Route::post('/register', [RegisterController::class, 'register']);
 Route::post('/login', [LoginController::class, 'login']);
 Route::group(['middleware' => ['jwt.verify']], function () {
-    Route::get('/fetch-products', [ProductController::class, 'getProducts']);
-    Route::get('/fetch-products/{id}', [ProductController::class, 'getProductById']);
-    Route::post('/products', [ProductController::class, 'insertProduct']);
-    Route::post('/items', [ProductController::class, 'insertItem']);
-    Route::post('/upload-image', [ProductController::class, 'uploadImage']);
-    Route::put('/products/{id}/update', [ProductController::class, 'updateProductName']);
-    Route::put('/products/{productId}/items/{itemId}/update', [ProductController::class, 'updateItemPrice']);
-    Route::patch('/products/{productId}/items/{itemId}/update-size', [ProductController::class, 'updateItemSize']);
-Route::patch('/products/{productId}/items/{itemId}/update-color', [ProductController::class, 'updateItemColor']);
+    Route::get('/products/all', [ProductController::class, 'getAllProducts']);
+    Route::post('/products/create', [ProductController::class, 'createProductWithItemsAndImages']);
+    Route::put('/update-product/{productId}', [ProductController::class, 'updateEntity']);
+    Route::delete('/hard-delete-product/{productId}', [ProductController::class, 'hardDeleteProduct']);
+
     Route::get('/logout', [LogoutController::class, 'logout']);
 
 });
