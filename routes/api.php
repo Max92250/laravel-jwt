@@ -13,7 +13,7 @@ Route::post('/login', [LoginController::class, 'login']);
 Route::group(['middleware' => ['jwt.verify']], function () {
     Route::get('/products/all', [ProductController::class, 'getAllProducts']);
     Route::post('/products/create', [ProductController::class, 'createProductWithItemsAndImages']);
-    Route::put('/update-product/{productId}', [ProductController::class, 'updateEntity']);
+    Route::post('/update-product/{productId}', [ProductController::class, 'updateEntity']);
     Route::delete('/hard-delete-product/{productId}', [ProductController::class, 'hardDeleteProduct']);
 
     Route::get('/logout', [LogoutController::class, 'logout']);

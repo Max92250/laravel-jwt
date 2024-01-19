@@ -26,7 +26,7 @@ class ProductController extends Controller
             'color' => 'required|array',
             'image_1.*' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'image_2.*' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-    
+
         ]);
     
         $product = Product::create([
@@ -35,9 +35,9 @@ class ProductController extends Controller
             'created_at' => now(),
             'updated_at' => null,
         ]);
-    
+
         $sku = 'SKU_' . now()->timestamp . Str::random(5);
-    
+
         foreach ($request->input('price') as $key => $price) {
             $item = $product->items()->create([
                 'sku' => $sku,
@@ -49,10 +49,10 @@ class ProductController extends Controller
             ]);
             $imageName1 = $this->generateImageName($request->file("image_1.$key"));
             $imageName2 = $this->generateImageName($request->file("image_2.$key"));
-    
+
             $imagePath1 = $this->storeImage($request->file("image_1.$key"), 'images', $imageName1);
             $imagePath2 = $this->storeImage($request->file("image_2.$key"), 'images', $imageName2);
-    
+
             $product->images()->create([
                 'product_id' => $product->id,
                 'item_id' => $item->id,
@@ -61,22 +61,27 @@ class ProductController extends Controller
                 'created_at' => now(),
             ]);
         }
-    
-       
-    
+
+
+
         return response()->json(['status' => 'success', 'product_id' => $product->id], 201);
     }
+
     
     public function updateEntity(Request $request, $productId)
     {
         $request->validate([
             'name' => 'sometimes|required|string',
             'description' => 'sometimes|required|string',
-            'price' => 'sometimes|required|numeric',
-            'size' => 'sometimes|required|string',
-            'color' => 'sometimes|required|string',
-            'image_1' => 'sometimes|required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'image_2' => 'sometimes|required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'items' => 'sometimes|required|array',
+            'items.*.id' => 'required|exists:items,id',
+            'items.*.price' => 'sometimes|required|numeric',
+            'items.*.size' => 'sometimes|required|string',
+            'items.*.color' => 'sometimes|required|string',
+            'images' => 'sometimes|required|array',
+            'images.*.id' => 'required|exists:images,id',
+            'images.*.image_1' => 'sometimes|required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'images.*.image_2' => 'sometimes|required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
     
         try {
@@ -89,49 +94,53 @@ class ProductController extends Controller
     
             $product->update($productData);
     
-            $itemData = [
-                'price' => $request->input('price', $product->items->first()->price ?? null),
-                'size' => $request->input('size', $product->items->first()->size ?? null),
-                'color' => $request->input('color', $product->items->first()->color ?? null),
-            ];
+            if ($request->has('items')) {
+                foreach ($request->input('items') as $itemData) {
+                    $item = Item::findOrFail($itemData['id']);
+                    $updateFields = [
+                        'price' => $itemData['price'] ?? $item->price,
+                        'size' => $itemData['size'] ?? $item->size,
+                        'color' => $itemData['color'] ?? $item->color,
+                    ];
+                    $item->update($updateFields);
+                }
+            }
+            if ($request->has('images')) {
+                foreach ($request->input('images') as $imageData) {
     
-            if ($product->items->first()) {
-                $product->items->first()->update($itemData);
-            } else {
-                $product->items()->create($itemData);
+                    $imageId = $imageData;
+                    $image = Image::findOrFail($imageId);
+                    $updateFields = [
+                        'image_1' => $this->updateImage($imageData['image_1'], $image->image_1 ?? null),
+                        'image_2' => $this->updateImage($imageData['image_2'], $image->image_2 ?? null),
+                    ];
+                    $image->update($updateFields);
+                }
             }
     
-            $imageData = [];
-            if ($request->hasFile('image_1')) {
-                $imageData['image_1'] = $this->updateImage($request->file('image_1'), $product->images->first()->image_1 ?? null);
-            }
-            if ($request->hasFile('image_2')) {
-                $imageData['image_2'] = $this->updateImage($request->file('image_2'), $product->images->first()->image_2 ?? null);
-            }
     
-            if ($product->images->first()) {
-                $product->images->first()->update($imageData);
-            } else {
-                $product->images()->create($imageData);
-            }
-    
-            return response()->json(['status' => 'success', 'message' => 'Product, item, and image updated successfully']);
+            return response()->json(['status' => 'success', 'message' => 'Product, items, and images updated successfully']);
         } catch (\Exception $exception) {
-            \Log::error('Exception: ' . $exception->getMessage());
+            
             return response()->json(['status' => 'error', 'message' => $exception->getMessage()], 404);
         }
     }
-    private function updateImage($newImage, $oldImagePath)
-    {
-        $oldImagePath = public_path(str_replace(asset(''), '', $oldImagePath));
+    
+    public function updateImage($newImage, $oldImagePath = null)
+{
 
+    if ($newImage) {
+    
         $imageName = $this->generateImageName($newImage);
         $imagePath = $this->storeImage($newImage, 'images', $imageName);
 
-        $this->deleteImage($oldImagePath);
-
+    
         return asset($imagePath);
     }
+
+   
+    return $oldImagePath;
+}
 
     private function generateImageName($image)
     {
@@ -165,7 +174,7 @@ class ProductController extends Controller
     public function hardDeleteProduct($productId)
     {
         try {
-            $product = Product::findOrFail($productId);
+            $product = Product::with(['items', 'images'])->findOrFail($productId);
             $product->forceDelete();
 
             return response()->json(['status' => 'success', 'message' => 'Product and associated items/images deleted successfully']);

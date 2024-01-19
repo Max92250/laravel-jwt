@@ -25,6 +25,8 @@ class Image extends Model
         return asset('images/' . $value);
     }
 
+    
+
     public function product()
     {
         return $this->belongsTo(Product::class);
