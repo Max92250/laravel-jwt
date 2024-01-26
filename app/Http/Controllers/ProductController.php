@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Image;
 use App\Models\Item;
 use App\Models\Product;
-use App\Models\Review;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
@@ -14,11 +13,11 @@ use Illuminate\Support\Str;
 class ProductController extends Controller
 {
 
-    public function edit($productId)
+    /*public function edit($productId)
     {
-        $product = Product::findOrFail($productId);
-        return view('edit', compact('product'));
-    }
+    $product = Product::findOrFail($productId);
+    return view('edit', compact('product'));
+    }*/
     public function createProductWithItemsAndImages(Request $request)
     {
         $request->validate([
@@ -61,9 +60,10 @@ class ProductController extends Controller
 
             $product->images()->create([
                 'product_id' => $product->id,
-                'image_1' => asset($imagePath1),
-                'image_2' => asset($imagePath2),
+                'image_1' => $imageName1,
+                'image_2' => $imageName2,
                 'created_at' => now(),
+                'updated_at' => null,
             ]);
         }
         return response()->json(['status' => 'success', 'product_id' => $product->id], 201);
@@ -135,7 +135,7 @@ class ProductController extends Controller
                     $imagePath1 = $this->storeImage($newImage1, 'images', $imageName1);
 
                     $image->update([
-                        'image_1' => asset($imagePath1),
+                        'image_1' => $imageName1,
                         'updated_at' => now(),
                     ]);
 
@@ -148,7 +148,7 @@ class ProductController extends Controller
                     $imagePath2 = $this->storeImage($newImage2, 'images', $imageName2);
 
                     $image->update([
-                        'image_2' => asset($imagePath2),
+                        'image_2' => $imageName2,
                         'updated_at' => now(),
                     ]);
 
@@ -223,7 +223,7 @@ class ProductController extends Controller
     public function getProductById($productId)
     {
         try {
-            $product = Product::with(['items', 'images','reviews'])->findOrFail($productId);
+            $product = Product::with(['items', 'images', 'reviews'])->findOrFail($productId);
 
             return response()->json(['product' => $product]);
         } catch (ModelNotFoundException $exception) {
@@ -257,20 +257,20 @@ class ProductController extends Controller
         }
     }
 
-   /* public function postReview(Request $request, $productId)
-    {
-        $request->validate([
-            'content' => 'required|string',
-            'rating' => 'required|integer|min:1|max:5',
-        ]);
+    /* public function postReview(Request $request, $productId)
+{
+$request->validate([
+'content' => 'required|string',
+'rating' => 'required|integer|min:1|max:5',
+]);
 
-        $product = Product::findOrFail($productId);
+$product = Product::findOrFail($productId);
 
-        $review = new Review($request->all());
-        $product->reviews()->save($review);
+$review = new Review($request->all());
+$product->reviews()->save($review);
 
-        return response()->json(['status' => 'success', 'message' => 'Review posted successfully']);
-    }
-    */
+return response()->json(['status' => 'success', 'message' => 'Review posted successfully']);
+}
+ */
 
 }
