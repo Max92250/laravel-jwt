@@ -13,17 +13,15 @@ Route::post('/login', [LoginController::class, 'login']);
 //Route::get('/product/{id}', [ProductController::class, 'edit'])->name('edit');
 //Route::post('/products/{productId}/reviews', [ProductController::class, 'postReview'])->name('review');
 
-
-Route::post('/products/create', [ProductController::class, 'createProductWithItemsAndImages']);
+Route::delete('/hard-delete-product/{productId}', [ProductController::class, 'hardDeleteProduct']);
 
 Route::group(['middleware' => ['jwt.verify']], function () {
-   
 
     Route::put('/update-product/{productId}', [ProductController::class, 'updateEntity'])->name('update.product');
     Route::get('/products/all', [ProductController::class, 'getAllProducts']);
-    Route::get('/products/{productId}', [ProductController::class, 'getProductById']);
+    Route::post('/products/create', [ProductController::class, 'createProductWithItemsAndImages']);
 
-    Route::delete('/hard-delete-product/{productId}', [ProductController::class, 'hardDeleteProduct']);
+    Route::get('/products/{productId}', [ProductController::class, 'getProductById']);
 
     Route::get('/logout', [LogoutController::class, 'logout']);
 

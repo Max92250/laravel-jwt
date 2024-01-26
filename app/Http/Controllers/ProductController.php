@@ -72,7 +72,7 @@ class ProductController extends Controller
     public function updateEntity(Request $request, $productId)
     {
         $request->validate([
-            'name' => 'sometimes|required|string',
+            'name' => 'sometimes|required|string|regex:/^[^0-9]*$/',
             'description' => 'sometimes|required|string',
             'items' => 'sometimes|required|array',
             'items.*.id' => 'required|exists:items,id',
