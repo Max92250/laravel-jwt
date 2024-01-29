@@ -14,10 +14,10 @@ class ItemFactory extends Factory
     public function definition()
     {
         return [
-            'price' => $this->faker->randomFloat(2, 1, 100),
+            'price' => $this->faker->randomFloat(2, 100, 1000),
             'size' => $this->faker->randomElement(['S', 'M', 'L']),
             'color' => $this->faker->colorName,
-            'sku' => 'SKU_' . now()->timestamp . $this->faker->randomNumber(5)
+            'sku' => $this->faker->word,
        
         ];
     }

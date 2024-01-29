@@ -12,10 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('items', function (Blueprint $table) {
-            $table->string('status')->default('active')->after('size');
+            $table->enum('status', ['active', 'inactive'])->default('active')->after('size');
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
         Schema::table('items', function (Blueprint $table) {

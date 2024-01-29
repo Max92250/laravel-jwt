@@ -4,6 +4,7 @@
 namespace Database\Factories;
 
 use App\Models\Image;
+use App\Models\Product;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class ImageFactory extends Factory
@@ -12,10 +13,14 @@ class ImageFactory extends Factory
 
     public function definition()
     {
+        $fakeImage = $this->faker->image(public_path('images'), 400, 300, null, false);
+
         return [
-            'image_1' => 'images/' . $this->faker->image('public/images', 400, 300, null, false),
-            'image_2' => 'images/' . $this->faker->image('public/images', 400, 300, null, false),
-            // other fields...
+            'product_id' => Product::factory(),
+            'image_path' =>  basename($fakeImage),
+            'created_at' => now(),
+            'updated_at' => now(),
         ];
+        
     }
 }

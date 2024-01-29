@@ -15,14 +15,13 @@ class DeleteTest extends TestCase
          
          $productsWithItemsAndImages = Product::with(['items', 'images'])->get();
  
-       
+    
          $this->assertNotEmpty($productsWithItemsAndImages);
  
          $product = $productsWithItemsAndImages->first();
  
-   
-         $response = $this->json('DELETE', "/api/hard-delete-product/{$product->id}");
- 
+         $response = $this->json('DELETE', "/api/products/{$product->id}/delete");
+
          $response->assertStatus(200)
              ->assertJson([
                  'status' => 'success',

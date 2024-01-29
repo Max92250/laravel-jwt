@@ -29,7 +29,7 @@ class ProductUpdateValidationTest extends TestCase
 
         $product = Product::factory()->create();
         $item = Item::factory(['product_id' => $product->id])->create();
-        $image = Image::factory(['product_id' => $product->id])->create();
+      
 
         $newItemData = [
             'id' => $item->id,

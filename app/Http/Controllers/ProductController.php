@@ -2,13 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Image;
 use App\Models\Item;
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
@@ -18,7 +16,7 @@ class ProductController extends Controller
     $product = Product::findOrFail($productId);
     return view('edit', compact('product'));
     }*/
-    public function createProductWithItemsAndImages(Request $request)
+    public function createProductWithItems(Request $request)
     {
         $request->validate([
             'name' => 'required|string',
@@ -26,48 +24,58 @@ class ProductController extends Controller
             'items.*.price' => 'required|numeric',
             'items.*.size' => 'required|string',
             'items.*.color' => 'required|string',
-            'images.*.image_1' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'images.*.image_2' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'items.*.sku' => 'required|string',
+
         ]);
 
         $product = Product::create([
             'name' => $request->input('name'),
             'description' => $request->input('description'),
-            'created_at' => now(),
             'updated_at' => null,
         ]);
-        $sku = 'SKU_' . now()->timestamp . Str::random(5);
 
         foreach ($request->input('items') as $key => $itemData) {
             $item = $product->items()->create([
-                'sku' => $sku,
+                'sku' => $itemData['sku'],
                 'price' => $itemData['price'],
                 'size' => $itemData['size'],
                 'color' => $itemData['color'],
-                'created_at' => now(),
                 'updated_at' => null,
             ]);
         }
 
-        $images = $request->file('images');
-
-        foreach ($images as $key => $image) {
-            $imageName1 = $this->generateImageName($image['image_1']);
-            $imageName2 = $this->generateImageName($image['image_2']);
-
-            $imagePath1 = $this->storeImage($image['image_1'], 'images', $imageName1);
-            $imagePath2 = $this->storeImage($image['image_2'], 'images', $imageName2);
-
-            $product->images()->create([
-                'product_id' => $product->id,
-                'image_1' => $imageName1,
-                'image_2' => $imageName2,
-                'created_at' => now(),
-                'updated_at' => null,
-            ]);
-        }
         return response()->json(['status' => 'success', 'product_id' => $product->id], 201);
     }
+
+    public function createProductWithImages(Request $request)
+    {
+        $request->validate([
+            'images' => 'required|array',
+            'images.*' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'product_id' => 'required|exists:products,id',
+        ]);
+    
+        $product = $this->findProductOrFail($request->input('product_id'));
+    
+        // Ensure that the 'images' key exists in the request
+        if ($request->hasFile('images')) {
+               foreach ($request->file('images') ?? [] as $image) {
+                $imageName = $this->generateImageName($image);
+    
+                $imagePath1 = $this->storeImage($image, 'images', $imageName);
+    
+                $product->images()->create([
+                    'product_id' => $request->input('product_id'),
+                    'image_path' => $imageName,
+                    'updated_at' => null,
+                ]);
+            }
+        }
+        
+    
+        return response()->json(['status' => 'success', 'product_id' => $product->id], 201);
+    }
+    
 
     public function updateEntity(Request $request, $productId)
     {
@@ -75,18 +83,15 @@ class ProductController extends Controller
             'name' => 'sometimes|required|string|regex:/^[^0-9]*$/',
             'description' => 'sometimes|required|string',
             'items' => 'sometimes|required|array',
-            'items.*.id' => 'required|exists:items,id',
+            'items.*.id' => 'sometimes|required|exists:items,id',
             'items.*.price' => 'sometimes|required|numeric',
             'items.*.size' => 'sometimes|required|string',
             'items.*.color' => 'sometimes|required|string',
-            'image_ids' => 'nullable|exists:images,id',
-            'image_1' => 'sometimes|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'image_2' => 'sometimes|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-
+            'items.*.sku' => 'sometimes|required|string',
         ]);
 
-        try {
-            $product = Product::findOrFail($productId);
+        $product = Product::find($productId);
+        if ($product) {
 
             $productData = [
                 'name' => $request->input('name', $product->name),
@@ -97,89 +102,74 @@ class ProductController extends Controller
 
             if ($request->has('items')) {
                 foreach ($request->input('items') as $itemData) {
-                    $itemId = $itemData['id'];
+                    $itemId = $itemData['id'] ?? null;
 
-                    try {
-                        $item = Item::where('product_id', $product->id)->findOrFail($itemId);
-                    } catch (\Exception $exception) {
-                        if ($exception instanceof \Illuminate\Database\Eloquent\ModelNotFoundException) {
-                            return response()->json([
-                                'status' => 'error',
-                                'message' => "Item with ID $itemId not found for the specified product",
-                            ], 404);
-                        }
+                    if ($itemId) {
+                        $item = Item::where('product_id', $product->id)->find($itemId);
 
+                        $updateFields = [
+                            'price' => $itemData['price'] ?? $item->price,
+                            'size' => $itemData['size'] ?? $item->size,
+                            'color' => $itemData['color'] ?? $item->color,
+                        ];
+
+                        $item->update($updateFields);
+
+                    } else {
+
+                        Item::create([
+                            'product_id' => $product->id,
+                            'price' => $itemData['price'],
+                            'size' => $itemData['size'],
+                            'color' => $itemData['color'],
+                            'sku' => $itemData['sku'],
+                        ]);
                     }
-
-                    $updateFields = [
-                        'price' => $itemData['price'] ?? $item->price,
-                        'size' => $itemData['size'] ?? $item->size,
-                        'color' => $itemData['color'] ?? $item->color,
-                    ];
-
-                    $item->update($updateFields);
-                }
-            }
-
-            $imageId = $request->input('image_ids');
-
-            if ($imageId) {
-                $image = $this->findImageOrFail($imageId);
-
-                $newImage1 = $request->file("image_1");
-                $newImage2 = $request->file("image_2");
-
-                if ($newImage1) {
-                    $oldImagePath1 = public_path(str_replace(asset(''), '', $image->image_1));
-                    $imageName1 = $this->generateImageName($newImage1);
-                    $imagePath1 = $this->storeImage($newImage1, 'images', $imageName1);
-
-                    $image->update([
-                        'image_1' => $imageName1,
-                        'updated_at' => now(),
-                    ]);
-
-                    $this->deleteImage($oldImagePath1);
-                }
-
-                if ($newImage2) {
-                    $oldImagePath2 = public_path(str_replace(asset(''), '', $image->image_2));
-                    $imageName2 = $this->generateImageName($newImage2);
-                    $imagePath2 = $this->storeImage($newImage2, 'images', $imageName2);
-
-                    $image->update([
-                        'image_2' => $imageName2,
-                        'updated_at' => now(),
-                    ]);
-
-                    $this->deleteImage($oldImagePath2);
                 }
             }
 
             return response()->json(['status' => 'success', 'message' => 'Product updated successfully']);
-        } catch (\Exception $exception) {
-            return response()->json(['status' => 'error', 'message' => "product Id not found"], 404);
         }
+        return response()->json(['status' => 'error', 'message' => "Product ID not found"], 404);
+
     }
 
-    protected function findProductOrFail($productId)
+    public function updateImages(Request $request, $productId)
     {
-        try {
-            $product = Product::findOrFail($productId);
-            return $product;
-        } catch (ModelNotFoundException $exception) {
-            throw new ModelNotFoundException("Product not found with ID: $productId");
-        }
-    }
+        $request->validate([
+            'images' => 'required|array',
+            'images.*' => 'sometimes|required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'product_id' => 'required|exists:products,id',
+        ]);
 
-    protected function findImageOrFail($imageId)
-    {
-        try {
-            $image = Image::findOrFail($imageId);
-            return $image;
-        } catch (ModelNotFoundException $exception) {
-            throw new ModelNotFoundException("Image not found with ID: $imageId");
+        $product = Product::find($productId);
+        
+        foreach ($product->images as $oldImage) {
+            $oldImagePath = public_path(str_replace(asset(''), '', $oldImage->image_path));
+            $this->deleteImage($oldImagePath);
         }
+
+
+        foreach ($request->file('images') as $index => $image) {
+
+            $imageName = $this->generateImageName($image);
+            $imagePath = $this->storeImage($image, 'images', $imageName);
+
+      
+
+            $product->images[$index]->update([
+                'product_id' => $productId,
+                'image_path' => $imageName,
+                
+            ]);
+    
+        
+
+            
+
+        }
+
+        return response()->json(['status' => 'success', 'product_id' => $productId], 201);
     }
 
     private function generateImageName($image)
@@ -230,6 +220,12 @@ class ProductController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Product not found for the specified ID'], 404);
         }
     }
+
+    private function findProductOrFail($productId)
+    {
+        return Product::findOrFail($productId);
+    }
+
 
     public function deactivateItem($productId, $itemId)
     {

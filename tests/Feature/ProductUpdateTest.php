@@ -25,26 +25,23 @@ class ProductUpdateTest extends TestCase
 
         $product = Product::factory()->create();
         $item = Item::factory(['product_id' => $product->id])->create();
-        $image = Image::factory(['product_id' => $product->id])->create();
 
-        $newItemData = [
-            'id' => $item->id,
-            'price' => 19.99,
-            'size' => 'M',
+       
+        $newName = $this->faker->word;
+        $newDescription = $this->faker->sentence;
+
+        $newItemsData = [
+            ['id' => $item->id, 'price' => 20.99, 'size' => 'L', 'color' => 'Red'],
+            ['price' => 15.50, 'size' => 'M', 'color' => 'Blue', 'sku' => 'ABC123'],
+           
         ];
-
-        $newImage1 = UploadedFile::fake()->image('new_image1.jpg');
-        $newImage2 = UploadedFile::fake()->image('new_image2.jpg');
 
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $token,
-        ])->putjson('/api/update-product/' . $product->id, [
-            'name' => $product['name'],
-            'description' => $product['description'],
-            'items' => [$newItemData],
-            'image_ids' => $image->id,
-            'image_1' => $newImage1,
-            'image_2' => $newImage2,
+        ])->json('PUT', '/api/products/' . $product->id . '/update-items', [
+            'name' => $newName,
+            'description' => $newDescription,
+            'items' => $newItemsData,
         ]);
 
         $response->assertStatus(200)
@@ -53,37 +50,42 @@ class ProductUpdateTest extends TestCase
                 'message' => 'Product updated successfully',
             ]);
 
-        $product->refresh();
-        $this->assertEquals($product['name'], $product->name);
-        $this->assertEquals($product['description'], $product->description);
+        $this->assertEquals($newName, $product->refresh()->name);
 
-        $this->assertCount(1, $product->items);
+        $this->assertEquals($newDescription, $product->refresh()->description);
+
+
+        $this->assertCount(2, $product->items);
+
         $updatedItem = $product->items->first();
-        $this->assertEquals($newItemData['price'], $updatedItem->price);
-        $this->assertEquals($newItemData['size'], $updatedItem->size);
 
-        $this->assertCount(1, $product->images);
-        $updatedImages = $product->images->first();
-        $this->assertNotNull($updatedImages->image_1);
-        $this->assertNotNull($updatedImages->image_2);
+        $this->assertEquals($newItemsData[0]['price'], $updatedItem->price);
 
-       
+        $this->assertEquals($newItemsData[0]['size'], $updatedItem->size);
+        
+        $secondUpdatedItem = $product->items->last();
+        $this->assertEquals($newItemsData[1]['price'], $secondUpdatedItem->price);
+
+        $this->assertEquals($newItemsData[1]['size'], $secondUpdatedItem->size);
+
+        $this->assertEquals($newItemsData[1]['color'], $secondUpdatedItem->color);
+
         $this->assertDatabaseHas('products', [
             'id' => $product->id,
-            'name' => $product['name'],
-            'description' => $product['description'],
+            'name' => $newName,
+            'description' => $newDescription,
         ]);
 
         $this->assertDatabaseHas('items', [
-            'id' => $newItemData['id'],
-            'price' => $newItemData['price'],
-            'size' => $newItemData['size'],
+            'id' => $newItemsData[0]['id'], 
+            'price' => $newItemsData[0]['price'],
+            'size' => $newItemsData[0]['size'],
         ]);
-
-        $this->assertDatabaseHas('images', [
-            'id' => $image->id,
-            'image_1' => basename(parse_url(asset($updatedImages->image_1), PHP_URL_PATH)),
-            'image_2' => basename(parse_url(asset($updatedImages->image_2), PHP_URL_PATH)),
+        
+        $this->assertDatabaseHas('items', [
+            'price' => $newItemsData[1]['price'],
+            'size' => $newItemsData[1]['size'],
+            'color' => $newItemsData[1]['color'],
         ]);
 
         $responseArray = $response->json();

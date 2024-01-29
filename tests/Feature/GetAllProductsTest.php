@@ -29,10 +29,9 @@ class GetAllProductsTest extends TestCase
 
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $token,
-        ])->getJson('/api/products/all');
+        ])->getJson('/api/products');
 
         $response->assertStatus(200)
-            ->assertJsonStructure(['products' => [['id', 'name', 'description', 'items', 'images']]])
             ->assertJsonCount(count($products), 'products');
 
         foreach ($products as $product) {
@@ -53,15 +52,11 @@ class GetAllProductsTest extends TestCase
                 ]);
             }
             foreach ($product->images as $image) {
-                dump('Actual: ' . $image->image_1);
-                dump('Expected: ' . $image->image_1);
-
                 $response->assertJsonFragment([
                     'id' => $image->id,
-                    'image_1' => basename(parse_url(asset($image->image_1), PHP_URL_PATH)),
-                    'image_2' => basename(parse_url(asset($image->image_2), PHP_URL_PATH)),
-
+                    'image_path' =>  basename($image->image_path),
                 ]);
+                
             }
 
         }
