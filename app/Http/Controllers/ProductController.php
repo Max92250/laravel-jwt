@@ -1,7 +1,9 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use App\Http\Resources\ProductResource;
+use App\Http\Resources\ItemResource;
+use App\Http\Resources\ImageResource;
 use App\Models\Item;
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Builder;
@@ -229,7 +231,7 @@ class ProductController extends Controller
                 $query->where('status', '=', 'active');
             })
             ->get();
-        return response()->json(['products' => $products]);
+            return ProductResource::collection($products);
     }
 
     public function getProductById($productId)

@@ -129,7 +129,7 @@ public function testUpdateEntity()
                 'price' => 19.99,
                 'size' => 'M',
                 'color' => 'Red',
-          
+                'sku' => 'SKU123',
             ],
         ],
     ];
