@@ -16,11 +16,8 @@ class ProductUpdateTest extends TestCase
    
     public function testUpdateProductWithItemsAndImages()
     {
-        $user = User::factory()->create([
-            'password' => bcrypt('password'),
-        ]);
+        $user = User::factory()->create();
 
-      
         $token = JWTAuth::fromUser($user);
 
         $product = Product::factory()->create();

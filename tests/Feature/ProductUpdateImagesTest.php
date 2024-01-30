@@ -8,6 +8,8 @@ use App\Models\Product;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
 use Tests\TestCase;
+use App\Models\User;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class ProductUpdateImagesTest extends TestCase
 {
@@ -16,6 +18,11 @@ class ProductUpdateImagesTest extends TestCase
     public function testUpdateImages()
     {
 
+        $user = User::factory()->create();
+
+        $token = JWTAuth::fromUser($user);
+
+
         $product = Product::factory()->create();
         $item = Item::factory(['product_id' => $product->id])->create();
 
@@ -23,7 +30,9 @@ class ProductUpdateImagesTest extends TestCase
 
         $newImages = $this->createFakeImages(2);
 
-        $response = $this->json('PUT', "/api/products/{$product->id}/update-images", [
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $token,
+        ])->json('PUT', "/api/products/{$product->id}/update-images", [
             'images' => $newImages,
             'product_id' => $product->id,
         ]);

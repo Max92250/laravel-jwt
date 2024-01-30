@@ -2,7 +2,9 @@
 
 namespace Tests\Feature;
 use App\Models\Product;
+use App\Models\User;
 use App\Models\Item;
+use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Models\Image;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
@@ -12,6 +14,11 @@ class DeleteTest extends TestCase
     
      public function testHardDeleteProductWithItemsAndImages()
      {
+
+        $user = User::factory()->create();
+
+        $token = JWTAuth::fromUser($user);
+
          
          $productsWithItemsAndImages = Product::with(['items', 'images'])->get();
  
@@ -20,7 +27,9 @@ class DeleteTest extends TestCase
  
          $product = $productsWithItemsAndImages->first();
  
-         $response = $this->json('DELETE', "/api/products/{$product->id}/delete");
+         $response = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $token,
+        ])->Json('DELETE', "/api/products/{$product->id}/delete");
 
          $response->assertStatus(200)
              ->assertJson([

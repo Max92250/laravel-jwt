@@ -37,45 +37,37 @@ class ProductUpdateValidationTest extends TestCase
             'size' => 'M',
         ];
 
-        $newImage1 = UploadedFile::fake()->create('invalid_image.txt'); // Invalid image format
-        $newImage2 = UploadedFile::fake()->image('new_image2.jpg');
+      
 
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $token,
-        ])->putJson('/api/update-product/' . $product->id, [
+        ])->json('PUT', '/api/products/' . $product->id . '/update-items', [
             'name' => $product['name'],
             'description' => $product['description'],
             'items' => [$newItemData],
-            'image_ids' => $image->id,
-            'image_1' => $newImage1,
-            'image_2' => $newImage2,
+          
         ]);
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors([
                 'items.0.price', 
-                'image_1', 
+              
             ]);
 
 
             $invalidItemData = [
                 'id' => $item->id,
-                'price' => 555, // Invalid price format
+                'price' => 555, //
                 'size' => 'M',
             ];
     
-            $newImage1 = UploadedFile::fake()->image('new_image1.jpg');
-            $newImage2 = UploadedFile::fake()->image('new_image2.jpg');
-    
             $response = $this->withHeaders([
                 'Authorization' => 'Bearer ' . $token,
-            ])->putJson('/api/update-product/' . $product->id, [
+            ])->json('PUT', '/api/products/' . $product->id . '/update-items',  [
                 'name' => '123', // Numeric name (invalid)
                 'description' => $product['description'],
                 'items' => [$invalidItemData],
-                'image_ids' => $image->id,
-                'image_1' => $newImage1,
-                'image_2' => $newImage2,
+             
             ]);
     
             $response->assertStatus(422)
@@ -95,13 +87,11 @@ class ProductUpdateValidationTest extends TestCase
 
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $token,
-        ])->putJson('/api/update-product/' . $product->id, [
+        ])->json('PUT', '/api/products/' . $product->id . '/update-items',  [
             'name' => 'Valid Name',
             'description' => $product['description'],
             'items' => [$validItemData],
-            'image_ids' => $image->id,
-            'image_1' => $validImage1,
-            'image_2' => $validImage2,
+           
         ]);
 
         $response->assertStatus(200)

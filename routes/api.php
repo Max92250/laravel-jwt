@@ -11,17 +11,16 @@ use Illuminate\Support\Facades\Route;
 //Route::post('/products/{productId}/reviews', [ProductController::class, 'postReview'])->name('review');
 Route::post('/users/register', [RegisterController::class, 'register'])->name('users.register');
 Route::post('/users/login', [LoginController::class, 'login'])->name('users.login');
-Route::get('/products', [ProductController::class, 'getAllProducts'])->name('products.all');
-Route::group(['middleware' => ['jwt.verify']], function () {
 
+Route::group(['middleware' => ['jwt.verify']], function () {
+    Route::get('/products', [ProductController::class, 'getAllProducts'])->name('products.all');
     Route::put('/products/{productId}/update-images', [ProductController::class, 'updateImages'])->name('products.update-image');
-  
+    Route::post('/products/items', [ProductController::class, 'createProductWithItems'])->name('products.create-with-items');
     Route::delete('/products/{productId}/delete', [ProductController::class, 'hardDeleteProduct'])->name('products.delete');
+
     Route::post('/products/images', [ProductController::class, 'createProductWithImages'])->name('images.create');
 
     Route::put('/products/{productId}/update-items', [ProductController::class, 'updateEntity'])->name('products.update');
-
-    Route::post('/products/items', [ProductController::class, 'createProductWithItems'])->name('products.create-with-items');
 
     Route::get('/products/{productId}', [ProductController::class, 'getProductById'])->name('products.get-by-id');
     Route::get('/logout', [LogoutController::class, 'logout'])->name('users.logout');

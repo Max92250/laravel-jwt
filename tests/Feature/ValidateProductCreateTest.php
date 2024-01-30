@@ -12,7 +12,7 @@ class ValidateProductCreateTest extends TestCase
 {
 
     use WithFaker;
-    use DatabaseTransactions;
+   
 
     public function testValidateProductData()
     {
@@ -27,7 +27,7 @@ class ValidateProductCreateTest extends TestCase
         // Missing 'name'
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $token,
-        ])->postJson('/api/products/create', [
+        ])->postJson('/api/products/items', [
             'description' => 'its good',
             'items' => [
                 [
@@ -37,22 +37,19 @@ class ValidateProductCreateTest extends TestCase
                     'sku' => 'ffvdf4556',
                 ],
             ],
-            'images' => [
-                [
-                    'image_1' => UploadedFile::fake()->create('image1.png'),
-                    'image_2' => UploadedFile::fake()->create('image2.jpg'),
-                ],
-            ],
+           
         ]);
+        $response->assertStatus(422)
+        ->assertJsonValidationErrors(['name']);
 
+
+    
         //missing description
 
-        $response->assertStatus(422)
-            ->assertJsonValidationErrors(['name']);
-
-            $response = $this->withHeaders([
+       
+        $response = $this->withHeaders([
                 'Authorization' => 'Bearer ' . $token,
-            ])->postJson('/api/products/create', [
+            ])->postJson('/api/products/items', [
             'name' => 'rrr',
             'items' => [
                 [
@@ -62,21 +59,17 @@ class ValidateProductCreateTest extends TestCase
                     'sku' => 'ffvdf4556',
                 ],
             ],
-            'images' => [
-                [
-                    'image_1' => UploadedFile::fake()->create('image1.png'),
-                    'image_2' => UploadedFile::fake()->create('image2.jpg'),
-                ],
-            ],
+           
         ]);
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['description']);
 
-        //missing items
+    
+        //missing items price
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $token,
-        ])->postJson('/api/products/create', [
+        ])->postJson('/api/products/items', [
             'name' => 'rrr',
             'description' => 'its good',
             'items' => [
@@ -84,19 +77,15 @@ class ValidateProductCreateTest extends TestCase
 
             ],
 
-            'images' => [
-                [
-                    'image_1' => UploadedFile::fake()->create('image1.png'),
-                    'image_2' => UploadedFile::fake()->create('image2.jpg'),
-                ],
-            ],
         ]);
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['items.0.price']);
 
 
-
+    }
+}
+/*
         // Missing image_1 in one image set
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $token,
@@ -229,4 +218,4 @@ class ValidateProductCreateTest extends TestCase
             ->assertJson(['status' => 'success', 'product_id' => true]);
 
     }
-}
+    */

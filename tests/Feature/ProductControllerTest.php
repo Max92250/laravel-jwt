@@ -11,6 +11,9 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 class ProductControllerTest extends TestCase
 {
     use WithFaker;
+    use DatabaseTransactions;
+    
+    
     public function testCreateProductWithItems()
     {
         $user = User::factory()->create();
