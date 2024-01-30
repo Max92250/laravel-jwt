@@ -10,10 +10,12 @@ use Illuminate\Http\UploadedFile;
 use Tests\TestCase;
 use App\Models\User;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 class ProductUpdateImagesTest extends TestCase
 {
     use WithFaker;
+    use DatabaseTransactions;
 
     public function testUpdateImages()
     {

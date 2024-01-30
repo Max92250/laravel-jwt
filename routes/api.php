@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Route;
 //Route::post('/products/{productId}/reviews', [ProductController::class, 'postReview'])->name('review');
 Route::post('/users/register', [RegisterController::class, 'register'])->name('users.register');
 Route::post('/users/login', [LoginController::class, 'login'])->name('users.login');
-
+Route::put('/products/{productId}/update-items', [ProductController::class, 'updateEntity'])->name('products.update');
 Route::group(['middleware' => ['jwt.verify']], function () {
     Route::get('/products', [ProductController::class, 'getAllProducts'])->name('products.all');
     Route::put('/products/{productId}/update-images', [ProductController::class, 'updateImages'])->name('products.update-image');
@@ -20,7 +20,7 @@ Route::group(['middleware' => ['jwt.verify']], function () {
 
     Route::post('/products/images', [ProductController::class, 'createProductWithImages'])->name('images.create');
 
-    Route::put('/products/{productId}/update-items', [ProductController::class, 'updateEntity'])->name('products.update');
+  
 
     Route::get('/products/{productId}', [ProductController::class, 'getProductById'])->name('products.get-by-id');
     Route::get('/logout', [LogoutController::class, 'logout'])->name('users.logout');

@@ -9,11 +9,12 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
 use Tests\TestCase;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 class ProductUpdateTest extends TestCase
 {
     use WithFaker;
-   
+    use DatabaseTransactions;
     public function testUpdateProductWithItemsAndImages()
     {
         $user = User::factory()->create();
@@ -40,7 +41,7 @@ class ProductUpdateTest extends TestCase
             'description' => $newDescription,
             'items' => $newItemsData,
         ]);
-
+          
         $response->assertStatus(200)
             ->assertJson([
                 'status' => 'success',

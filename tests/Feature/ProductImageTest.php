@@ -12,7 +12,7 @@ class ProductImageTest extends TestCase
     use WithFaker;
     use DatabaseTransactions;
 
-    public function test_valid_images()
+    public function test_createimages()
     {
         $user = User::factory()->create();
         $token = JWTAuth::fromUser($user);
@@ -26,7 +26,7 @@ class ProductImageTest extends TestCase
             'Authorization' => 'Bearer ' . $token,
         ])->postJson("/api/products/images", [
             'images' => $imageFiles,
-            'product_id' => 5,
+            'product_id' => 3,
         ]);
 
         $response->assertStatus(201)
@@ -34,7 +34,7 @@ class ProductImageTest extends TestCase
                 'status' => 'success',
             ]);
 
-        $this->validateImages($response, 5, $imageFiles);
+        $this->validateImages($response, 3, $imageFiles);
     }
 
     public function test_invalid_image_format()
@@ -48,7 +48,7 @@ class ProductImageTest extends TestCase
             'Authorization' => 'Bearer ' . $token,
         ])->postJson("/api/products/images", [
             'images' => [$invalidImage],
-            'product_id' => 5,
+            'product_id' => 3,
         ]);
 
         $response->assertStatus(422)
@@ -65,7 +65,7 @@ class ProductImageTest extends TestCase
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $token,
         ])->postJson("/api/products/images", [
-            'product_id' => 5,
+            'product_id' => 3,
         ]);
 
         $response->assertStatus(422)
