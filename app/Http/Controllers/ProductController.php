@@ -60,44 +60,31 @@ class ProductController extends Controller
             return view('products.show', compact('result'));
         }
     }
+
+
     public function createProductWithImages(Request $request)
     {
-        try {
-            $request->validate([
-                'images' => 'required|array',
-                'images.*' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-                'product_id' => 'required|exists:products,id',
-            ]);
+        $request->validate([
+            'images' => 'required|array',
+            'images.*' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'product_id' => 'required|exists:products,id',
+        ]);
 
-            DB::beginTransaction();
+        $productId = $request->input('product_id');
+        $imageFiles = $request->file('images');
 
-            $product = $this->findProductOrFail($request->input('product_id'));
+        $result = $this->productService->createProductWithImages($productId, $imageFiles);
 
-            // Ensure that the 'images' key exists in the request
-            if ($request->hasFile('images')) {
-                $imageData = collect($request->file('images'))->map(function ($image) use ($product) {
-                    $imageName = $this->generateImageName($image);
-                    $this->storeImage($image, 'images', $imageName);
-
-                    return [
-                        'product_id' => $product->id,
-                        'image_path' => $imageName,
-
-                    ];
-                });
-
-                $product->images()->createMany($imageData->toArray());
-            }
-
-            DB::commit();
-
-            return response()->json(['status' => 'success', 'product_id' => $product->id], 201);
-
-        } catch (\Exception $exception) {
-            DB::rollBack();
-            return response()->json(['status' => 'error', 'message' => 'Failed to create product with images'], 500);
+        if ($request->wantsJson()) {
+            return response()->json($result);
+        } else {
+          
+            return view('products.show', compact('result'));
         }
-    }public function updateEntity(Request $request, $productId)
+    }
+
+   
+    public function updateEntity(Request $request, $productId)
     {
         try {
             $request->validate([
