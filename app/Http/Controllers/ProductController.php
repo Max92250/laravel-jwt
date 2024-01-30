@@ -157,6 +157,7 @@ class ProductController extends Controller
     
     public function updateImages(Request $request, $productId)
     {
+        try {
 
         $request->validate([
             'images' => 'required|array',
@@ -186,6 +187,10 @@ class ProductController extends Controller
         }
 
         return response()->json(['status' => 'success', 'product_id' => $productId], 201);
+
+    } catch (\Exception $exception) {
+        return response()->json(['status' => 'error', 'message' => 'Failed to update images. Please try again.'], 500);
+    }
 
     }
 
