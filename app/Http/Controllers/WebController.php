@@ -83,7 +83,7 @@ class WebController extends Controller
 
         $result = $this->productService->updateProduct($productId, $productData, $itemsData);
 
-        
+    
         if ($result['status'] === 'success') {
             return view('product.success', ['product_id' => $result['product_id']]);
         } else {
