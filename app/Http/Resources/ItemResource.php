@@ -14,6 +14,7 @@ class ItemResource extends JsonResource
             'size' => $this->size,
             'color' => $this->color,
             'sku' => $this->sku,
+            'product_id' => $this->product_id
         
         ];
     }
