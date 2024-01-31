@@ -2,13 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\ProductResource;
 use App\Models\Item;
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\QueryException;
-use Illuminate\Http\Request;
+
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+
+use Illuminate\Http\Request; // Import the Request class
+
+
+use App\Services\ProductService;
 
 class ProductController extends Controller
 {
@@ -18,208 +24,93 @@ class ProductController extends Controller
     $product = Product::findOrFail($productId);
     return view('edit', compact('product'));
     }*/
+   
+    protected $productService;
+
+    public function __construct(ProductService $productService)
+    {
+        $this->productService = $productService;
+    }
+
     public function createProductWithItems(Request $request)
     {
-        try {
-            $request->validate([
-                'name' => 'required|string',
-                'description' => 'required|string',
-                'items.*.price' => 'required|numeric',
-                'items.*.size' => 'required|string',
-                'items.*.color' => 'required|string',
-                'items.*.sku' => 'required|string',
-            ]);
+        $request->validate([
+            'name' => 'required|string',
+            'description' => 'required|string',
+            'items.*.price' => 'required|numeric',
+            'items.*.size' => 'required|string',
+            'items.*.color' => 'required|string',
+            'items.*.sku' => 'required|string',
+        ]);
+    
 
-            DB::beginTransaction();
+        $productData = [
+            'name' => $request->input('name'),
+            'description' => $request->input('description'),
+        ];
 
-            $product = Product::create([
-                'name' => $request->input('name'),
-                'description' => $request->input('description'),
+        $itemsData = $request->input('items');
 
-            ]);
+        $result = $this->productService->createProductWithItems($productData, $itemsData);
 
-            $itemData = collect($request->input('items'))->map(function ($item) {
-                return [
-                    'sku' => $item['sku'],
-                    'price' => $item['price'],
-                    'size' => $item['size'],
-                    'color' => $item['color'],
-
-                ];
-            });
-
-            $product->items()->createMany($itemData->toArray());
-
-            DB::commit();
-
-            return response()->json(['status' => 'success', 'product_id' => $product->id], 201);
-        } catch (QueryException $exception) {
-            DB::rollBack();
-            return response()->json(['status' => 'error', 'message' => 'Failed to create product with items'], 500);
-        }
+        return response()->json($result);
+        
     }
+    public function updateEntity(Request $request, $productId)
+    {
+        $request->validate([
+            'name' => 'sometimes|required|string|regex:/^[^0-9]*$/',
+            'description' => 'sometimes|required|string',
+            'items' => 'sometimes|required|array',
+            'items.*.id' => 'sometimes|required|exists:items,id',
+            'items.*.price' => 'sometimes|required|numeric',
+            'items.*.size' => 'sometimes|required|string',
+            'items.*.color' => 'sometimes|required|string',
+            'items.*.sku' => 'sometimes|required|string',
+        ]);
+
+        $productData = $request->only(['name', 'description']);
+        $itemsData = $request->input('items', []);
+
+        $result = $this->productService->updateProduct($productId, $productData, $itemsData);
+
+        return response()->json($result);
+       
+    }
+
+
     public function createProductWithImages(Request $request)
     {
-        try {
-            $request->validate([
-                'images' => 'required|array',
-                'images.*' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-                'product_id' => 'required|exists:products,id',
-            ]);
+        $request->validate([
+            'images' => 'required|array',
+            'images.*' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'product_id' => 'required|exists:products,id',
+        ]);
 
-            DB::beginTransaction();
+        $productId = $request->input('product_id');
+        $imageFiles = $request->file('images');
 
-            $product = $this->findProductOrFail($request->input('product_id'));
+        $result = $this->productService->createProductWithImages($productId, $imageFiles);
 
-            // Ensure that the 'images' key exists in the request
-            if ($request->hasFile('images')) {
-                $imageData = collect($request->file('images'))->map(function ($image) use ($product) {
-                    $imageName = $this->generateImageName($image);
-                    $this->storeImage($image, 'images', $imageName);
-
-                    return [
-                        'product_id' => $product->id,
-                        'image_path' => $imageName,
-
-                    ];
-                });
-
-                $product->images()->createMany($imageData->toArray());
-            }
-
-            DB::commit();
-
-            return response()->json(['status' => 'success', 'product_id' => $product->id], 201);
-
-        } catch (\Exception $exception) {
-            DB::rollBack();
-            return response()->json(['status' => 'error', 'message' => 'Failed to create product with images'], 500);
-        }
-    }public function updateEntity(Request $request, $productId)
-    {
-        try {
-            $request->validate([
-                'name' => 'sometimes|required|string|regex:/^[^0-9]*$/',
-                'description' => 'sometimes|required|string',
-                'items' => 'sometimes|required|array',
-                'items.*.id' => 'sometimes|required|exists:items,id',
-                'items.*.price' => 'sometimes|required|numeric',
-                'items.*.size' => 'sometimes|required|string',
-                'items.*.color' => 'sometimes|required|string',
-                'items.*.sku' => 'sometimes|required|string',
-            ]);
-    
-            $product = Product::find($productId);
-    
-            if ($product) {
-                $productData = [
-                    'name' => $request->input('name', $product->name),
-                    'description' => $request->input('description', $product->description),
-                ];
-    
-                $product->update($productData);
-    
-                if ($request->has('items')) {
-                    collect($request->input('items'))->each(function ($itemData) use ($product) {
-                        $itemId = $itemData['id'] ?? null;
-    
-                        if ($itemId) {
-                            $item = Item::where('product_id', $product->id)->find($itemId);
-    
-                            $updateFields = [
-                                'price' => $itemData['price'] ?? $item->price,
-                                'size' => $itemData['size'] ?? $item->size,
-                                'color' => $itemData['color'] ?? $item->color,
-                            ];
-    
-                            $item->update($updateFields);
-    
-                        } else {
-                            Item::create([
-                                'product_id' => $product->id,
-                                'price' => $itemData['price'],
-                                'size' => $itemData['size'],
-                                'color' => $itemData['color'],
-                                'sku' => $itemData['sku'],
-                            ]);
-                        }
-                    });
-                }
-    
-                return response()->json(['status' => 'success', 'message' => 'Product updated successfully']);
-            }
-    
-            return response()->json(['status' => 'error', 'message' => "Product ID not found"], 404);
-        } catch (\Exception $exception) {
-            return response()->json(['status' => 'error', 'message' => 'Failed to update product. Please try again.'], 500);
-        }
+        
+        return response()->json($result);
+      
     }
-    
+
+
     public function updateImages(Request $request, $productId)
     {
-        try {
-
         $request->validate([
             'images' => 'required|array',
             'images.*' => 'sometimes|required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'product_id' => 'required|exists:products,id',
         ]);
 
-        $product = Product::find($productId);
+        $imagesData = $request->file('images');
 
-        $product->images->each(function ($oldImage) {
-            $oldImagePath = public_path(str_replace(asset(''), '', $oldImage->image_path));
-            $this->deleteImage($oldImagePath);
-        });
+        $result = $this->productService->updateImages($productId, $imagesData);
 
-        $imagesData = collect($request->file('images'))->map(function ($image) use ($productId) {
-            $imageName = $this->generateImageName($image);
-            $imagePath = $this->storeImage($image, 'images', $imageName);
-
-            return [
-                'product_id' => $productId,
-                'image_path' => $imageName,
-            ];
-        });
-
-        foreach ($imagesData as $index => $image) {
-            $product->images[$index]->update($image);
-        }
-
-        return response()->json(['status' => 'success', 'product_id' => $productId], 201);
-
-    } catch (\Exception $exception) {
-        return response()->json(['status' => 'error', 'message' => 'Failed to update images. Please try again.'], 500);
-    }
-
-    }
-
-    private function generateImageName($image)
-    {
-        if ($image && $image->isValid() && $image->getClientOriginalName()) {
-            return now()->timestamp . '_' . $image->getClientOriginalName();
-        }
-
-        return null;
-    }
-
-    private function storeImage($image, $directory, $imageName)
-    {
-        if ($image) {
-            if ($image->move(public_path($directory), $imageName)) {
-                $imagePath = $directory . '/' . $imageName;
-                return $imagePath;
-            } else {
-                return null;
-            }
-        }
-
-        return null;
-    }
-
-    private function deleteImage($imagePath)
-    {
-        File::delete($imagePath);
+        return response()->json($result);
     }
 
     public function getAllProducts()
@@ -229,7 +120,7 @@ class ProductController extends Controller
                 $query->where('status', '=', 'active');
             })
             ->get();
-        return response()->json(['products' => $products]);
+        return ProductResource::collection($products);
     }
 
     public function getProductById($productId)
