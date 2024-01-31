@@ -18,7 +18,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-
+/*
 Route::post('/products/create', [WebController::class, 'createProductWithItem'])->name('products.create');
 
 Route::post('/products/create-with-images', [WebController::class, 'createProductWithImages'])->name('products.createWithImages');
