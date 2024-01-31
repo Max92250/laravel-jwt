@@ -1,11 +1,11 @@
 <?php
 
-
-/*
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Product;
 use App\Services\ProductService;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
 class WebController extends Controller
@@ -27,7 +27,6 @@ class WebController extends Controller
             'items.*.color' => 'required|string',
             'items.*.sku' => 'required|string',
         ]);
-    
 
         $productData = [
             'name' => $request->input('name'),
@@ -64,7 +63,6 @@ class WebController extends Controller
         }
     }
 
-
     public function updateEntity(Request $request, $productId)
     {
         $request->validate([
@@ -83,7 +81,6 @@ class WebController extends Controller
 
         $result = $this->productService->updateProduct($productId, $productData, $itemsData);
 
-    
         if ($result['status'] === 'success') {
             return view('product.success', ['product_id' => $result['product_id']]);
         } else {
@@ -108,6 +105,29 @@ class WebController extends Controller
         } else {
             return view('product.error', ['message' => $result['message']]);
         }
+    }
+    public function getAllProducts(Request $request)
+    {
+        $products = Product::with(['items', 'images'])
+            ->whereHas('items', function (Builder $query) {
+                $query->where('status', '=', 'active');
+            })
+            ->get();
+
+        return view('product.view', ['products' => $products]);
+
+    }
+
+    public function hardDeleteProduct(Request $request, $productId)
+    {
+
+        $product = Product::findOrFail($productId);
+        $product->delete();
+
+        $responseMessage = 'Product and associated items/images deleted successfully';
+
+        return redirect()->route('products.index')->with('success', $responseMessage);
+
     }
 
 }

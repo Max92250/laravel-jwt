@@ -156,7 +156,7 @@ class ProductController extends Controller
     {
         try {
             $product = Product::findOrFail($productId);
-            $product->Delete();
+            $product->delete();
 
             return response()->json(['status' => 'success', 'message' => 'Product and associated items/images deleted successfully']);
         } catch (\Exception $exception) {
