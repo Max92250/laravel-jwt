@@ -24,4 +24,4 @@ Route::post('/products/create', [WebController::class, 'createProductWithItem'])
 Route::post('/products/create-with-images', [WebController::class, 'createProductWithImages'])->name('products.createWithImages');
 
 Route::put('/products/{productId}/update', [WebController::class, 'updateEntity'])->name('products.update');
-Route::put('/products/{productId}/update-images', [WebController::class, 'updateImages'])->name('api.products.updateImages');
+Route::put('/products/{productId}/update-images', [WebController::class, 'updateImages'])->name('api.products.updateImages')
