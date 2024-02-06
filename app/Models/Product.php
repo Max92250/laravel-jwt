@@ -12,7 +12,10 @@ class Product extends Model
     'updated_at',];
 
   
-
+    public function categories()
+    {
+        return $this->belongsToMany(Category::class);
+    }
 
     public function items()
     {

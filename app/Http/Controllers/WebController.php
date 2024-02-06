@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Models\Category;
 use App\Services\ProductService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -16,7 +17,18 @@ class WebController extends Controller
     {
         $this->productService = $productService;
     }
-
+    public function createCategory(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|unique:categories',
+        ]);
+    
+        $category = Category::create([
+            'name' => $request->input('name'),
+        ]);
+    
+        return view('product.success', ['category_id' => $category->id]);
+    }
     public function createProductWithItem(Request $request)
     {
         $request->validate([
@@ -26,6 +38,8 @@ class WebController extends Controller
             'items.*.size' => 'required|string',
             'items.*.color' => 'required|string',
             'items.*.sku' => 'required|string',
+            'categories' => 'required|array',
+            'categories.*' => 'numeric|exists:categories,id', // Ensure categories are numeric and exist
         ]);
 
         $productData = [
@@ -35,7 +49,9 @@ class WebController extends Controller
 
         $itemsData = $request->input('items');
 
-        $result = $this->productService->createProductWithItems($productData, $itemsData);
+        $categoryId = $request->input('categories');
+
+        $result = $this->productService->createProductWithItems($productData, $itemsData,$categoryId);
         if ($result['status'] === 'success') {
             return view('product.success', ['product_id' => $result['product_id']]);
         } else {
@@ -68,6 +84,8 @@ class WebController extends Controller
         $request->validate([
             'name' => 'sometimes|required|string|regex:/^[^0-9]*$/',
             'description' => 'sometimes|required|string',
+            'categories' => 'sometimes|required|array',
+            'categories.*' => 'integer|exists:categories,id', // Updated validation for category IDs
             'items' => 'sometimes|required|array',
             'items.*.id' => 'sometimes|required|exists:items,id',
             'items.*.price' => 'sometimes|required|numeric',
@@ -75,11 +93,12 @@ class WebController extends Controller
             'items.*.color' => 'sometimes|required|string',
             'items.*.sku' => 'sometimes|required|string',
         ]);
+        $categoryId = $request->input('categories', []);
 
         $productData = $request->only(['name', 'description']);
         $itemsData = $request->input('items', []);
 
-        $result = $this->productService->updateProduct($productId, $productData, $itemsData);
+        $result = $this->productService->updateProduct($productId, $productData, $itemsData,$categoryId);
 
         if ($result['status'] === 'success') {
             return view('product.success', ['product_id' => $result['product_id']]);
@@ -106,6 +125,7 @@ class WebController extends Controller
             return view('product.error', ['message' => $result['message']]);
         }
     }
+
     public function getAllProducts(Request $request)
     {
         $products = Product::with(['items', 'images'])
@@ -129,5 +149,35 @@ class WebController extends Controller
         return redirect()->route('products.index')->with('success', $responseMessage);
 
     }
+
+    public function showCategories()
+    {
+        // Fetch all categories
+        $categories = Category::all();
+        
+        // Pass categories to the view
+        return view('product.index', ['categories' => $categories]);
+    }
+    public function getProductsByCategory($categoryId)
+    {
+           
+        try {
+
+            // Try to find the category with the specified ID
+            $category = Category::findOrFail($categoryId);
+            $categories = Category::all();
+
+            // Get the products associated with the category and eager load their items and images relationships
+            $products = $category->products()->with(['items','images'])->get();
+
+            // Return the products as a collection of ProductResource objects
+
+            return view('product.success', ['products' => $products],['categories' => $categories]);
+
+        } catch (\Exception $exception) {
+            return response()->json(['status' => 'error', 'message' => 'Failed to fetch products by category']);
+        }
+    }
+
 
 }

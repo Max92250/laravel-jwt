@@ -11,6 +11,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
+
+
 class loginController extends Controller
 {
     public function login(Request $request)
@@ -42,6 +44,7 @@ class loginController extends Controller
                 $user->update(['active' => 1]);
                
             }
+       
         return response()->json([
             'success' => true,
             'data' => ['token' => $token],
