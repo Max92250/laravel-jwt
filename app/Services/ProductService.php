@@ -136,6 +136,7 @@ public function createProductWithItems(array $productData, array $itemsData, arr
 
                 return ['status' => 'success', 'message' => 'Product updated successfully'];
             }
+            dd($itemsData);
 
             return ['status' => 'error', 'message' => 'Product not found', 'code' => 404];
         } catch (\Exception $exception) {

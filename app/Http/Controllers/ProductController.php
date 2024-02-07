@@ -145,7 +145,6 @@ class ProductController extends Controller
         
         // Extract the image files from the request
         $imagesData = $request->file('images');
-
          // Call the productService method to update the product images
         $result = $this->productService->updateImages($productId, $imagesData);
         
@@ -167,17 +166,15 @@ class ProductController extends Controller
 
     public function getProductById($productId)
     {
-            // Try to find the product with the specified ID
+        // Try to find the product with the specified ID
         try {
             $product = Product::with(['items', 'images'])->findOrFail($productId);
-    // Try to find the product with the specified ID
+         // Try to find the product with the specified ID
             return response()->json(['product' => $product]);
         } catch (ModelNotFoundException $exception) {
             return response()->json(['status' => 'error', 'message' => 'Product not found for the specified ID'], 404);
         }
     }
-
-  
 
     public function deactivateItem($productId, $itemId)
     {
@@ -190,7 +187,7 @@ class ProductController extends Controller
         // Return a JSON response indicating that the item was deactivated successfully
             return response()->json(['status' => 'success', 'message' => 'Item deactivated successfully']);
 
-        
+    
     // If the product or item is not found, catch the ModelNotFoundException and return a JSON response with an error message
         } catch (ModelNotFoundException $exception) {
             return response()->json(['status' => 'error', 'message' => 'Product or item not found for the specified ID'], 404);
