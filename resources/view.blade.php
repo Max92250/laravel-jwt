@@ -69,7 +69,7 @@
                                 </div>
                             </td>
                             <td class="border px-4 py-4">{{ \Carbon\Carbon::parse($product->created_at)->setTimezone('Asia/Kathmandu')->format('d/m/Y h:i A') }}</td>
-                    <td class="border px-4 py-4">{{ date('Y-m-d H:i:s', strtotime($product->created_at)}}</td>
+                    <td class="border px-4 py-4">{{$product->created_at}}</td>
                         </tr>
                     @endforeach
                 
