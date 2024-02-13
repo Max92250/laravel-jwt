@@ -10,18 +10,7 @@ class CreateAfterItemInsertTrigger extends Migration
      */
     public function up(): void
     {
-        DB::unprepared('
-            CREATE TRIGGER after_item_insert
-            AFTER INSERT ON items FOR EACH ROW
-            BEGIN
-                DECLARE size_name VARCHAR(255);
-              
-                SELECT name INTO size_name FROM sizes WHERE id = NEW.size_id ;
-
-              
-                SET NEW.name = size_name;
-            END
-        ');
+        
     }
 
     /**

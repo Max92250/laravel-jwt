@@ -7,6 +7,7 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'App\\Console\\Kernel' => $baseDir . '/app/Console/Kernel.php',
+    'App\\Events\\ItemCreated' => $baseDir . '/app/Events/ItemCreated.php',
     'App\\Exceptions\\Handler' => $baseDir . '/app/Exceptions/Handler.php',
     'App\\Http\\Controllers\\Auth\\LogoutController' => $baseDir . '/app/Http/Controllers/Auth/LogoutController.php',
     'App\\Http\\Controllers\\Auth\\PasswordResetController' => $baseDir . '/app/Http/Controllers/Auth/PasswordResetController.php',
@@ -15,7 +16,7 @@ return array(
     'App\\Http\\Controllers\\Controller' => $baseDir . '/app/Http/Controllers/Controller.php',
     'App\\Http\\Controllers\\ProductController' => $baseDir . '/app/Http/Controllers/ProductController.php',
     'App\\Http\\Controllers\\UserController' => $baseDir . '/app/Http/Controllers/UserController.php',
-    'App\\Http\\Controllers\\WebController' => $baseDir . '/app/Http/Controllers/WebController.php',
+    'App\\Http\\Controllers\\web\\WebController' => $baseDir . '/app/Http/Controllers/web/WebController.php',
     'App\\Http\\Kernel' => $baseDir . '/app/Http/Kernel.php',
     'App\\Http\\Middleware\\Authenticate' => $baseDir . '/app/Http/Middleware/Authenticate.php',
     'App\\Http\\Middleware\\CorsMiddleware' => $baseDir . '/app/Http/Middleware/CorsMiddleware.php',
@@ -31,6 +32,8 @@ return array(
     'App\\Http\\Resources\\ImageResource' => $baseDir . '/app/Http/Resources/ImageResource.php',
     'App\\Http\\Resources\\ItemResource' => $baseDir . '/app/Http/Resources/ItemResource.php',
     'App\\Http\\Resources\\ProductResource' => $baseDir . '/app/Http/Resources/ProductResource.php',
+    'App\\Http\\Resources\\SizeResource' => $baseDir . '/app/Http/Resources/SizeResource.php',
+    'App\\Listeners\\SetSizeName' => $baseDir . '/app/Listeners/SetSizeName.php',
     'App\\Mail\\TestMail' => $baseDir . '/app/Mail/TestMail.php',
     'App\\Models\\Category' => $baseDir . '/app/Models/Category.php',
     'App\\Models\\Image' => $baseDir . '/app/Models/Image.php',

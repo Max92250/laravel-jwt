@@ -15,6 +15,7 @@ class VerifyCsrfToken extends Middleware
         '/products/items',
         '/products/create-with-images',
         '/products/*/update',
-        '/products/*/update-images'
+        '/products/*/update-images',
+        '/customers'
     ];
 }

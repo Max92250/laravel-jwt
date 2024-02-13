@@ -47,7 +47,7 @@ class Kernel extends HttpKernel
     ];
     protected $routeMiddleware = [
    
-
+        'login' => \App\Http\Middleware\TestLogin::class,
         'jwt.verify' => \App\Http\Middleware\ParseTokenAuthenticate::class,
         'jwt.auth' => 'Tymon\JWTAuth\Middleware\GetUserFromToken',
         'jwt.refresh' => 'Tymon\JWTAuth\Middleware\RefreshToken',

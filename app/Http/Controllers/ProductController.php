@@ -69,6 +69,10 @@ class ProductController extends Controller
         $productData = [
             'name' => $request->input('name'),
             'description' => $request->input('description'),
+            'created_by' => $userName,
+            'updated_by' => $userName,
+            'user_id'=>$user->id,
+
         ];
 
         // Extract the category id from the request
@@ -87,7 +91,7 @@ class ProductController extends Controller
     public function updateEntity(Request $request, $productId)
     {
         $request->validate([
-            'name' => 'sometimes|required|string|regex:/^[^0-9]*$/',
+            'name' => 'sometimes|required|string',
             'description' => 'sometimes|required|string',
             'categories' => 'sometimes|required|array',
             'categories.*' => 'integer|exists:categories,id', // Updated validation for category IDs

@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Log;
+
 class ProductService
 {
 
@@ -19,7 +20,7 @@ public function createProductWithItems(array $productData, array $itemsData, arr
 {
     try {
         DB::beginTransaction();
-
+       
         // Create a new product
         $product = Product::create($productData);
         
@@ -35,14 +36,12 @@ public function createProductWithItems(array $productData, array $itemsData, arr
                 'color' => $item['color'],
             ];
         });
-
       
         $product->items()->createMany($formattedItems->toArray());
 
-       
         // Execute database operations
         DB::commit();
-
+       
         // Return success response
         return ['status' => 'success', 'product_id' => $product->id];
 
@@ -78,7 +77,7 @@ public function createProductWithItems(array $productData, array $itemsData, arr
 
             DB::commit();// Commit the database transaction
 
-            return ['status' => 'success', 'product_id' => $product->id];
+            return ['status' => 'success','product_id' => $product->id];
         } catch (\Exception $exception) {
             DB::rollBack();
             return ['status' => 'error', 'message' => 'Failed to create product with images'];
@@ -93,6 +92,10 @@ public function createProductWithItems(array $productData, array $itemsData, arr
           
             if ($product) {
 
+                $product->update($productData);
+                
+                $product->touch();
+
                 if (!empty($categoryId)) {
                     
                     $product->categories()->sync($categoryId);
@@ -101,7 +104,9 @@ public function createProductWithItems(array $productData, array $itemsData, arr
                 $itemsToCreate = [];// Initialize an array to store the items to create
                 
                 if (!empty($itemsData)) {
-                    foreach ($itemsData as $itemData) { // Loop through each item data
+                    foreach ($itemsData as $itemData) { 
+                        
+                        // Loop through each item data
                         $itemId = $itemData['id'] ?? null;
 
                         if ($itemId) {
@@ -111,10 +116,16 @@ public function createProductWithItems(array $productData, array $itemsData, arr
                                 'price' => $itemData['price'] ?? $item->price,
                                 'size_id' => $itemData['size_id'] ?? $item->size,
                                 'color' => $itemData['color'] ?? $item->color,
+                                
                             ];
 
                             $item->update($updateFields); // Update the item fields
                         } else {
+                            $existingItem = Item::where('sku', $itemData['sku'])->first();
+                            if ($existingItem) {
+                                throw new \Exception('SKU must be unique.');
+                            }
+             
                             $itemsToCreate[] = [ // Prepare the fields to create a new item
                                 'product_id' => $product->id,
                                 'price' => $itemData['price'],
@@ -144,8 +155,7 @@ public function createProductWithItems(array $productData, array $itemsData, arr
             DB::rollBack(); // Commit the database transaction
 
            // dd($exception);
-    
-            return ['status' => 'error', 'message' => 'Failed to update product. Please try again.', 'code' => 500];
+           return ['status' => 'error', 'message' => $exception->getMessage(), 'code' => 500];
         }
     }
 

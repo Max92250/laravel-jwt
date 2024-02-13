@@ -33,7 +33,7 @@ class ParseTokenAuthenticate
         
             $request->headers->set('Authorization', 'Bearer ' . $token);
             
-            Auth::login($user);
+     
 
             return $next($request);
         } catch (Exception $e) {

@@ -1,84 +1,73 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Create Product with Images</title>
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <style>
-        /* Custom CSS to center the form */
-        body, html {
-            height: 100%;
-        }
+@extends('product.nav')
 
-        .container-fluid {
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-    </style>
-</head>
-<body>
-    <div class="container-fluid">
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                <h2 class="text-center mb-4">Create Product with Images</h2>
-                <form action="{{ route('products.createWithImages') }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    <div class="form-group">
-                        <label for="product_id">Product ID:</label>
-                        <input type="text" id="product_id" name="product_id" class="form-control" required>
-                    </div>
+@section('section6')
+    <div class="container pt-20 mx-auto my-5 p-5">
 
-                    <div class="form-group" id="imageFields">
-                        <label for="images">Images:</label>
-                        <input type="file" name="images[]" class="form-control" accept="image/*" multiple required onchange="displaySelectedImages(event)">
-                    </div>
+        <!-- Left Side -->
+        <div class="w-full mb-10 md:w-3/12 md:mx-2">
 
-                    <button type="button" class="btn btn-primary mb-3" onclick="addImageField()">Add Image</button>
-                    <div id="imagePreview"></div>
-
-                    <button type="submit" class="btn btn-success">Submit</button>
-                </form>
-            </div>
+            <form action="{{ route('products.createWithImages') }}" method="POST" enctype="multipart/form-data"
+                class="px-6 py-4">
+                @csrf
+                <input type="hidden" name="product_id" value="{{ $product_id }}">
+                <div class="mb-4">
+                    <label for="images" class="block text-sm font-medium text-gray-700 mb-4">Select Images:</label>
+                    <input type="file" id="images" name="images[]" multiple required
+                        class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                </div>
+                <button type="submit"
+                    class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    Upload Images
+                </button>
+            </form>
         </div>
+
+        @if (isset($product) && $product->images->isNotEmpty())
+            <div class="w-full bg-white  mx-2 ">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 ">
+                        <thead class="text-xs text-gray-700 uppercase dark:text-gray-400 bg-gray-200">
+
+                            <tr>
+                                <th class="px-4 py-2">Image</th>
+                                <th class="px-4 py-2">Created At</th>
+                                <th class="px-4 py-2">Updated At</th>
+                                <th class="px-4 py-2">Delete</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-gray-600">
+                            @foreach ($product->images as $image)
+                                <tr class="border-b border-gray-200 dark:border-gray-700">
+                                    <td class="fixed-column border px-4 py-2 w-48 text-center">
+                                        <img src="{{ asset('images/' . $image->image_path) }}" class="w-20 h-auto mx-auto"
+                                            alt="Product Image">
+                                    </td>
+                                    <td class="border px-4 py-2">{{ $image->created_at }}</td>
+                                    <td class="border px-4 py-2">{{ $image->updated_at }}</td>
+                                    <td class=" border px-4 py-2">
+                                        
+                                        <button type="button" onclick="confirmDelete('{{ route('images.delete', $image->id) }}')"
+                                            class="py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-400 focus:outline-none bg-white rounded-full border border-gray-200 hover:bg-gray-100 ">Delete</button>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+        @endif
     </div>
-
-    <!-- Bootstrap JS and jQuery -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
     <script>
-        function displaySelectedImages(event) {
-            const previewContainer = document.getElementById('imagePreview');
-            previewContainer.innerHTML = ''; // Clear previous images
-
-            const files = event.target.files;
-            for (const file of files) {
-                const image = document.createElement('img');
-                image.src = URL.createObjectURL(file);
-                image.style.maxWidth = '200px';
-                image.style.maxHeight = '200px';
-                previewContainer.appendChild(image);
+        function confirmDelete(deleteUrl) {
+            if (confirm('Are you sure you want to delete this image?')) {
+                // If the user confirms, submit the form
+                window.location.href = deleteUrl;
+            } else {
+                // If the user cancels, do nothing
+                return false;
             }
         }
-
-        function addImageField() {
-            const imageFields = document.getElementById('imageFields');
-            const newInput = document.createElement('input');
-            newInput.type = 'file';
-            newInput.name = 'images[]';
-            newInput.accept = 'image/*';
-            newInput.multiple = true;
-            newInput.required = true;
-            newInput.className = 'form-control mt-3'; // Add margin top for spacing
-            newInput.onchange = displaySelectedImages;
-            imageFields.appendChild(newInput);
-        }
     </script>
-</body>
-</html>
+    
+@endsection
