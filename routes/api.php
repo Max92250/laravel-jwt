@@ -1,13 +1,12 @@
 <?php
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\RegisterController;
-use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('')->group(function () {
-
     // Public routes
     Route::post('/users/register', [RegisterController::class, 'register'])->name('users.register');
     Route::post('/users/login', [LoginController::class, 'login'])->name('users.login');
@@ -29,7 +28,7 @@ Route::prefix('')->group(function () {
         Route::post('products/category', [ProductController::class, 'createCategory']);
         Route::post('/products/images', [ProductController::class, 'createProductWithImages'])->name('images.create');
         Route::post('/sizes', [ProductController::class, 'store']);
-      
+
         // PUT Routes
         Route::put('/products/{productId}/update-items', [ProductController::class, 'updateEntity'])->name('products.update');
         Route::put('/products/{productId}/update-images', [ProductController::class, 'updateImages'])->name('products.update-image');

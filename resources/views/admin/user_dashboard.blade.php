@@ -1,4 +1,4 @@
-@extends('admin.nav')
+@extends('product.nav')
 
 @section('section6')
 

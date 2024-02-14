@@ -1,4 +1,4 @@
-@extends('admin.nav')
+@extends('product.nav')
 
 @section('section7')
 
@@ -88,7 +88,7 @@
                                         <td class="border px-4 py-4">{{ ucfirst($user->username) }}</td>
                                         <td class="border px-4 py-4">{{ $user->email }}</td>
                                         <td class="border px-4 py-4">{{ $user->active == 1 ? 'Active' : 'Inactive' }}</td>
-                                        <td class="border px-4 py-4">{{ $user->type }}</td>
+                                        <td class="border px-4 py-4">{{ $user->type }} ({{ $user->customer_name }})</td>
                                         <td class="border px-4 py-4">{{ \Carbon\Carbon::parse($user->created_at)->setTimezone('Asia/Kathmandu')->format('d/m/Y h:i A') }}</td>
                                         <td class="border px-4 py-4">{{ \Carbon\Carbon::parse($user->updated_at)->setTimezone('Asia/Kathmandu')->format('d/m/Y h:i A') }}</td>
 

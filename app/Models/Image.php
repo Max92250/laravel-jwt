@@ -13,6 +13,8 @@ class Image extends Model
         'product_id',
         'created_at',
     'updated_at',
+    
+ 
     ];
     public function getImage1Attribute($value)
     {

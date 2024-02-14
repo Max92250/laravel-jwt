@@ -11,28 +11,66 @@
 
 
 <body class="bg-gray-100 w-full  h-screen">
-    <nav class="py-4 bg-white fixed top-0 left-0 right-0 z-50 shadow-md">
+    <nav class="py-4 bg-white fixed pt-6 top-0 left-0 right-0 z-50 shadow-md">
         <div class="container mx-auto flex justify-between items-center px-6">
             <div class="flex items-center">
                 <!-- Logo -->
-                <a href="{{route('products.index')}}" class="text-black text-lg font-semibold mr-4">My Website</a>
-
-                <!-- Category Link -->
+                @if(Auth::user()->isAdmin())
+                <!-- If user is admin, link to admin page -->
+                <a href="{{route('Admin.dashboard')}}" class="text-black text-lg font-semibold mr-4">Admin</a>
+           
+            @else
+                <!-- If user is not admin, link to user page -->
+                <a href="{{route('product.dashboard')}}" class="text-black text-lg font-semibold mr-4">User</a>
+            @endif
+              
                 <div class="relative mr-4">
-                    <a href="{{route('categories')}}" class="text-black hover:text-gray-300 focus:outline-none">Categories</a>
+                @if(Auth::user()->isAdmin())
+                <!-- If user is admin, link to admin page -->
+                <a href="{{route('Admin.dashboard')}}" class="text-black hover:text-gray-300 focus:outline-none">Customer</a>
+            @else
+                <!-- If user is not admin, link to user page -->
+                <a href="{{route('categories')}}" class="text-black hover:text-gray-300 focus:outline-none">Categories</a>
+            @endif
                 </div>
+
+
 
                 <!-- Product Size Link -->
                 <div class="relative mr-4">
+                    @if(Auth::user()->isAdmin())
+                    <!-- If user is admin, link to admin page -->
+                    <a href="{{route('users.details')}}" class="text-black hover:text-gray-300 focus:outline-none">User</a>
+                @else
+                    <!-- If user is not admin, link to user page -->
                     <a href="{{route('sizes')}}" class="text-black hover:text-gray-300 focus:outline-none">Size</a>
+                @endif
+                 
                 </div>
 
                 <!-- Product Link -->
                 <div class="relative mr-4">
-                    <a href="{{route('products.index')}}" class="text-black hover:text-gray-300 focus:outline-none">Product</a>
+                    @if(Auth::user()->isAdmin())
+                    <!-- If user is admin, link to admin page -->
+               
+               
+                @else
+                    <!-- If user is not admin, link to user page -->
+                    <a href="{{route('product.dashboard')}}" class="text-black hover:text-gray-300 focus:outline-none">Product</a>
+                @endif
+                  
+                 
                 </div>
                 <div class="relative mr-4">
+                    @if(Auth::user()->isAdmin())
+                    <!-- If user is admin, link to admin page -->
+               
+               
+                @else
+                    <!-- If user is not admin, link to user page -->
                     <a href="{{route('products.create.form')}}" class="text-black hover:text-gray-300 focus:outline-none">Create</a>
+                @endif
+                  
                 </div>
               
                
@@ -70,6 +108,7 @@
     @yield('section5')
     @yield('section6')
     @yield('section7')
+    @yield('section8')
     <script>
         function handleChange(select) {
             const selectedOption = select.options[select.selectedIndex].value;

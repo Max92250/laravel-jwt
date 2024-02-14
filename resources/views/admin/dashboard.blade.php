@@ -1,6 +1,6 @@
-@extends('admin.nav')
+@extends('product.nav')
 
-@section('section')
+@section('section1')
     <div id="create-customer-modal"
         class="fixed top-0 left-0 w-full h-full bg-gray-800 bg-opacity-50 flex justify-center items-center hidden">
 
@@ -70,10 +70,11 @@
                 <tbody>
                     @foreach ($customers as $customer)
                         <tr class="border-b border-gray-200 dark:border-gray-700">
-                            <td class="border px-4 py-4">{{ $customer->id }}</td>
                             <td class="border px-4 py-4">
-                                <a href="{{ route('user.dashboard', ['customerId' => $customer->id]) }}"
-                                    class="text-blue-500 hover:underline">{{ $customer->name }}</a>
+                                <a href="{{ route('user.dashboard', ['customerId' => $customer->id]) }}">{{ $customer->id }}
+                                </a></td>
+                            <td class="border px-4 py-4">
+                                {{ $customer->name }}
 
                             </td>
                             <td class="border px-4 py-4">{{ $customer->identifier }}</td>

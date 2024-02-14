@@ -138,7 +138,6 @@ class ProductController extends Controller
       
     }
 
-
     public function updateImages(Request $request, $productId)
     {
         $request->validate([

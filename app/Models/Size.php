@@ -9,7 +9,8 @@ class Size extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['parent_id', 'name', 'status'];
+    protected $fillable = ['parent_id', 'name', 'status'  ,'created_by',
+    'updated_by','user_id'];
 
     public function subSizes()
     {

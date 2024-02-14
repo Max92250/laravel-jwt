@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Log;
-
+use Illuminate\Support\Facades\Validator;
 class ProductService
 {
 
@@ -20,7 +20,9 @@ public function createProductWithItems(array $productData, array $itemsData, arr
 {
     try {
         DB::beginTransaction();
-       
+        
+    
+    
         // Create a new product
         $product = Product::create($productData);
         
@@ -109,13 +111,20 @@ public function createProductWithItems(array $productData, array $itemsData, arr
                         // Loop through each item data
                         $itemId = $itemData['id'] ?? null;
 
+                        
+
                         if ($itemId) {
                             $item = Item::where('product_id', $product->id)->find($itemId);// Find the item by ID
-
+                            if ($item->sku !== $itemData['sku']) {
+                                Validator::make($itemData, [
+                                    'sku' => 'required|string|unique:items,sku',
+                                ])->validate();
+                            }
                             $updateFields = [ // Prepare the fields to update
                                 'price' => $itemData['price'] ?? $item->price,
                                 'size_id' => $itemData['size_id'] ?? $item->size,
                                 'color' => $itemData['color'] ?? $item->color,
+                                'sku' => $itemData['sku'] ?? $item->sku
                                 
                             ];
 

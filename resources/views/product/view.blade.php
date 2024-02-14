@@ -35,7 +35,7 @@
                     @endif
                 </td>
                 <td class="border px-4 py-2">{{ $product->name }}</td>
-                <td class="border px-4 py-2">
+                <td class="border px-4 py-2 w-100">
                     @if (strlen($product->description) > 100)
                         <span id="shortDesc_{{ $product->id }}">
                             {{ substr($product->description, 0, 100) }}...
@@ -64,8 +64,8 @@
                         @endforeach
                     </div>
                 </td>
-                <td class="border px-4 py-2">{{ date('d/m/Y h:i A', strtotime($product->created_at)) }}    {{($product->created_by)}}</td>
-                <td class="border px-4 py-2">{{ date('d/m/Y h:i A', strtotime($product->updated_at)) }}   {{($product->updated_by)}}</td>
+                <td class="border px-4 py-4 text-center">{{ \Carbon\Carbon::parse($product->created_at)->setTimezone('Asia/Kathmandu')->format('d/m/Y h:i A') }} {{$product->user_name}}</td>
+                <td class="border px-4 text-center py-4">{{ \Carbon\Carbon::parse($product->updated_at)->setTimezone('Asia/Kathmandu')->format('d/m/Y h:i A') }} {{$product->user_name}}</td>
                 <td class="border px-4 py-2 text-center">
                     <a href="{{ route('showimages', ['product_id' => $product->id]) }}">
                         <i class="fas fa-images text-blue-500 cursor-pointer mr-2"></i>
@@ -74,6 +74,7 @@
                         <i class="fas fa-edit text-blue-500 cursor-pointer"></i> <!-- Edit Icon -->
                     </a>
                 </td>
+             
             </tr>
             @endforeach
         </table>
