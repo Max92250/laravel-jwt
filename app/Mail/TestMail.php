@@ -16,7 +16,7 @@ class TestMail extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct(public string $email, public string $token)
+    public function __construct(public string $email)
     {
        
     }
@@ -27,7 +27,7 @@ class TestMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Reset Password',
+            subject: 'category created success fully',
         );
     }
 
@@ -38,7 +38,7 @@ class TestMail extends Mailable
     {
         return new Content(
             view: 'mail.name',
-            with: ['email' => $this->email, 'token' => $this->token]
+            with: ['email' => $this->email]
         );
     }
 

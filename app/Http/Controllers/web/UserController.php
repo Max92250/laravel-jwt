@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Validator;
 class UserController extends Controller
 {
 
-    public function showLoginForm()
+    public function loginform()
     {
         return view('User.login');
     }
@@ -28,8 +28,9 @@ class UserController extends Controller
 
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
-            $token = $user->createToken('laravel_token')->plainTextToken;
 
+            $token = $user->createToken('laravel_token')->plainTextToken;
+            $request->session()->put('role', $user->type);
             // Store user email in session
             $request->session()->put('user', $user->username);
             // Check if the user is an admin
@@ -73,8 +74,7 @@ class UserController extends Controller
 
             return redirect()->route('users.details')->with('success', 'User created successfully');
         } catch (\Exception $e) {
-            dd($e);
-
+            
             return back()->withInput()->withErrors(['error' => 'Failed to create Users. Please try again.']);
         }
     }
@@ -115,8 +115,11 @@ class UserController extends Controller
             $user->tokens()->delete();
 
             Auth::logout();
+            
+            $request->session()->forget('role');
 
             return redirect('login')->with('success', 'Please log in.');
         }
     }
+    
 }

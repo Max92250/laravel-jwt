@@ -24,10 +24,12 @@
                             <td class="border px-4 py-2 align-middle text-center">{{ $subSize->status }}</td>
                             <td class="border px-4 py-2 align-middle text-center">
                                 {{ date('d/m/Y h:i A', strtotime($subSize->created_at)) }}
-                                {{ $subSize->created_by }}</td>
+                                {{ $createdByUsernames[$subSize->created_by] ?? 'Unknown' }}</td>
                             <td class="border px-4 py-2 align-middle text-center">
                                 {{ date('d/m/Y h:i A', strtotime($subSize->updated_at)) }}
-                                {{ $subSize->updated_by }}</td>
+                                {{ $updatedByUsernames[$subSize->updated_by] ?? 'Unknown' }}
+                               </td>
+                               </td>
                             <td class="border px-4 py-2 align-middle text-center">
                                 <button class="text-blue-500 hover:underline"
                                     onclick="openEditModal('{{ $subSize->id }}', '{{ $subSize->name }}')">

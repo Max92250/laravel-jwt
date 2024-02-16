@@ -6,11 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Customer;
 use App\Models\Image;
+use App\Mail\TestMail;
 use App\Models\Product;
 use App\Models\Size;
 use App\Models\User;
 use App\Services\ProductService;
 use DB;
+use Illuminate\Support\Facades\Mail;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -21,29 +24,6 @@ class ProductController extends Controller
     public function __construct(ProductService $productService)
     {
         $this->productService = $productService;
-    }
-    public function Category(Request $request)
-    {
-
-        $user = Auth::user();
-
-    // Retrieve products based on the user_id
-    $products = Product::where('user_id', $user->id)->with('categories')->get();
-
-
-    return $products;
-
-    }
-    public function Sizes(Request $request)
-    {
-
-        $sizes = Size::all();
-
-        foreach ($sizes as $size) {
-            $user = User::find($size->user_id);
-            $size->user_name = $user ? $user->username : '';
-        }
-        return view('product.size', compact('sizes'));
     }
 
     public function createProductWithItem(Request $request)
@@ -63,13 +43,13 @@ class ProductController extends Controller
             ]);
 
             $user = Auth::user();
-        
+
             $productData = [
                 'name' => $request->input('name'),
                 'description' => $request->input('description'),
-                'created_by' => $user->username,
-                'updated_by' => $user->username,
-                'user_id' => $user->id,
+                'created_by' => $user->id,
+                'updated_by' => $user->id,
+
                 'customer_id' => $user->customer_id, // Add customer_id to product data
 
             ];
@@ -139,21 +119,29 @@ class ProductController extends Controller
 
     public function showSubSizes($id)
     {
-
         $size = Size::findOrFail($id);
-
-        if (!$size) {
-            // Handle the case where the size is not found
-            return response()->json(['error' => 'Size not found'], 404);
-        }
-
-        // Get all sizes from the database
-        $sizes = Size::all();
-
-        // Return the view with the parent size and all sizes
-        return view('product.subsizes', compact('size', 'sizes'));
+    
+        // Get the authenticated user
+        $user = auth()->user();
+    
+        // Fetch sizes based on the customer ID associated with the authenticated user
+        $sizes = Size::where('customer_id', $user->customer_id)->get();
+    
+        // Fetch the usernames for the creators of the sizes
+        $createdByUsernames = User::whereIn('id', $sizes->pluck('created_by')->unique())
+            ->pluck('username', 'id');
+    
+        // Fetch the usernames for the updaters of the sizes
+        $updatedByUsernames = User::whereIn('id', $sizes->pluck('updated_by')->unique())
+            ->pluck('username', 'id');
+    
+     
+    
+        // Return the view with the parent size, usernames, and filtered sizes
+        return view('product.subsizes', compact('size', 'sizes', 'createdByUsernames', 'updatedByUsernames'));
 
     }
+    
     public function delete($id)
     {
         $image = Image::find($id);
@@ -183,7 +171,7 @@ class ProductController extends Controller
         }
     }
 
-    public function updateEntity(Request $request, $productId)
+    public function updateproduct(Request $request, $productId)
     {
         $request->validate([
             'name' => 'sometimes|required|string',
@@ -200,14 +188,14 @@ class ProductController extends Controller
         $categoryId = $request->input('categories', []);
 
         $user = Auth::user();
-    
+
         $productData = [
             'name' => $request->input('name'),
             'description' => $request->input('description'),
-            'created_by' => $user->username,
-            'updated_by' => $user->username,
-            'user_id' => $user->id,
-            'customer_id' => $user->customer_id, // Add customer_id
+         
+            'updated_by' => $user->id,
+
+            
 
         ];
         $itemsData = $request->input('items', []);
@@ -240,7 +228,7 @@ class ProductController extends Controller
         }
     }
 
-    public function productedit($productId)
+    public function edit($productId)
     {
         // Retrieve the product from the database based on the product ID
         $product = Product::findOrFail($productId);
@@ -249,6 +237,7 @@ class ProductController extends Controller
         // Pass the product data to the view
         return view('product.edit', compact('product', 'categories', 'sizes'));
     }
+
     public function getAllProducts(Request $request)
     {
         // Get the authenticated user
@@ -258,33 +247,26 @@ class ProductController extends Controller
     
         if ($customer) {
             $products = $this->fetchProductsForCustomer($customer);
-            $this->attachUserNameToProducts($products);
     
-            return view('product.view', ['products' => $products]);
+            // Fetch the usernames for the creators of the products
+            $createdByUsername = User::whereIn('id', $products->pluck('created_by')->unique())
+                ->pluck('username', 'id');
+    
+            // Fetch the usernames for the updaters of the products
+            $updatedByUsername = User::whereIn('id', $products->pluck('updated_by')->unique())
+                ->pluck('username', 'id');
+    
+            return view('product.view', [
+                'products' => $products,
+                'createdByUsername' => $createdByUsername,
+                'updatedByUsername' => $updatedByUsername,
+            ]);
         }
     }
     
     protected function fetchProductsForCustomer($customer)
     {
         return Product::where('customer_id', $customer->id)->latest()->get();
-    }
-    
-    protected function attachUserNameToProducts($products)
-    {
-        $userIds = $products->pluck('user_id')->unique()->toArray();
-        $users = User::whereIn('id', $userIds)->get()->keyBy('id');
-    
-        foreach ($products as $product) {
-            $product->user_name = $users->has($product->user_id) ? $users[$product->user_id]->username : 'N/A';
-        }
-    }
-    public function showCategories()
-    {
-        // Fetch all categories
-        $categories = Category::all();
-
-        // Pass categories to the view
-        return view('product.product', ['categories' => $categories]);
     }
 
     public function getProductsBySearch(Request $request)
@@ -298,13 +280,8 @@ class ProductController extends Controller
         $searchQuery = $request->input('q');
 
         try {
-            // Query to fetch products
-            $productsQuery = Product::query();
-
-            // If the user is not an admin, filter products based on the user ID
-            if (!$user->isAdmin()) {
-                $productsQuery->where('user_id', $user->id);
-            }
+            // Fetch the products based on the customer_id of the authenticated user
+            $productsQuery = Product::where('customer_id', $user->customer_id);
 
             // If a search query is provided, filter products based on the search query
             if ($searchQuery) {
@@ -324,42 +301,175 @@ class ProductController extends Controller
 
     public function ProductCreate()
     {
-        $categories = Category::all(); // Assuming you have a Category model
-        $sizes = Size::all();
+        $user = auth()->user();
+        $categories = Category::where('customer_id', $user->customer_id)->get();
+        $sizes = Size::where('customer_id', $user->customer_id)->get();
+    
         return view('product.create_product', compact('categories', 'sizes')); // Pass both categories and sizes to the view
     }
+
     public function sizeupdate(Request $request, $id)
     {
         // Validate the incoming request
         $request->validate([
             'sizeName' => 'required|string|max:255', // Assuming 'sizeName' is the name of the input field
         ]);
-    
+
         $user = Auth::user();
-        
+
         try {
             // Find the size by ID
             $size = Size::findOrFail($id);
-    
+
             // Update the size name
             $size->update([
                 'name' => $request->input('sizeName'),
-                'created_by'=>$user->username,
-                'updated_by'=>$user->username,
-                'user_id'=>$user->id,
+             
+                'updated_by' =>$request->user()->id,
+               
             ]);
-    
+
             return redirect()->back()->with('success', 'Size name updated successfully.');
         } catch (\Exception $e) {
             // Handle any exceptions
             return redirect()->back()->with('error', 'Failed to update size name.');
         }
     }
+
+    public function updateCategory(Request $request, $id)
+    {
+        // Validate the incoming data from the client-side
+        $request->validate([
+            'name' => 'required|string|unique:categories,name,' . $id,
+        ]);
     
+        // Find the category by ID
+        $category = Category::findOrFail($id);
+    
+        // Update the category with the validated data
+        $category->update([
+            'name' => $request->input('name'),
+            'updated_by' => $request->user()->id,
+        ]);
+    
+        return redirect()->back()->with('success', 'Category name updated successfully.');
+    }
+
     public function profile()
     {
         $user = Auth::user();
         return view('product.profile', ['user' => $user]);
+    }
+
+    public function Sizes(Request $request)
+    {
+        $user = Auth::user();
+
+        $sizes = Size::where('customer_id', $user->customer_id)->get();
+        // Fetch the username for the creator of the sizes
+        $createdByUsername = User::whereIn('id', $sizes->pluck('created_by')->unique())
+        ->pluck('username', 'id');
+
+    // Fetch the usernames for the updaters of the sizes
+    $updatedByUsername = User::whereIn('id', $sizes->pluck('updated_by')->unique())
+        ->pluck('username', 'id');
+
+        return view('product.size', [
+            'sizes' => $sizes,
+            'createdByUsername' => $createdByUsername,
+            'updatedByUsername' => $updatedByUsername,
+        ]);
+    }
+    public function createCategory(Request $request)
+    {
+        $this->validateCategory($request);
+
+        try {
+            $category = $this->createCategoryModel($request);
+            $this->sendEmailNotification($category);
+
+            return redirect()->back()->with('success', 'Category created successfully.');
+        } catch (\Exception $e) {
+            return redirect()->back()->withInput()->withErrors(['error' => 'Failed to create category. Please try again.']);
+        }
+    }
+
+    private function validateCategory(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|unique:categories',
+        ]);
+    }
+
+    private function createCategoryModel(Request $request)
+    {
+        $user = Auth::user();
+
+        return Category::create([
+            'name' => $request->input('name'),
+            'created_by' => $user->id,
+            'updated_by' => $user->id,
+            'customer_id' => $user->customer_id,
+        ]);
+    }
+
+    private function sendEmailNotification(Category $category)
+    {
+        $email = Auth::user()->email;
+        Mail::to($email)->send(new TestMail($email));
+    }
+
+    
+    public function Category(Request $request)
+    {
+        $user = Auth::user();
+    
+        $categories = Category::where('customer_id', $user->customer_id)->get();
+    
+        // Fetch the usernames for the creators of the categories
+        $createdByUsername = User::whereIn('id', $categories->pluck('created_by')->unique())
+            ->pluck('username', 'id');
+    
+        // Fetch the usernames for the updaters of the categories
+        $updatedByUsername = User::whereIn('id', $categories->pluck('updated_by')->unique())
+            ->pluck('username', 'id');
+    
+        return view('product.category', [
+            'categories' => $categories,
+            'createdByUsername' => $createdByUsername,
+            'updatedByUsername' => $updatedByUsername,
+        ]);
+    }
+    
+    public function store(Request $request)
+    {
+        // Validate the incoming request data
+
+        $request->validate([
+            'name' => 'required|string',
+            'parent_id' => 'nullable|exists:sizes,id',
+            'status' => 'nullable|in:active,inactive',
+
+        ]);
+
+        // Get the authenticated user
+        $user = Auth::user();
+
+        // Create a new Size object with the authenticated user's ID as created_by and updated_by
+        $size = new Size([
+            'name' => $request->input('name'),
+            'parent_id' => $request->input('parent_id'),
+            'status' => $request->input('status'),
+            'created_by' => $user->id,
+            'updated_by' => $user->id,
+            'customer_id' => $user->customer_id,
+        ]);
+
+        // Save the size to the database
+        $size->save();
+
+        return redirect()->back()->with('success', 'Size name successfully.');
+
     }
 
 }
