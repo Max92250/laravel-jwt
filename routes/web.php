@@ -1,50 +1,68 @@
 <?php
+
+use App\Http\Controllers\web\AuthenticationController;
+use App\Http\Controllers\web\CategoryController;
 use App\Http\Controllers\web\CustomerController;
+use App\Http\Controllers\web\ImageController;
 use App\Http\Controllers\web\ProductController;
+use App\Http\Controllers\web\ProfileController;
+use App\Http\Controllers\web\SizeController;
 use App\Http\Controllers\web\UserController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/login', [UserController::class, 'loginform'])->name('loginform');
-Route::post('/login', [UserController::class, 'login'])->name('login');
+// Authentication Routes
+Route::get('/login', [AuthenticationController::class, 'loginform'])->name('loginform');
+Route::post('/login', [AuthenticationController::class, 'login'])->name('login');
+Route::get('/logout', [AuthenticationController::class, 'logout'])->name('logout');
 
-Route::get('/logout', [UserController::class, 'logout'])->name('logout');
-Route::group(['middleware' => ['auth:sanctum', 'role:admin']], function () {
+Route::middleware(['auth'])->group(function () {
 
-    Route::get('/profiles', [ProductController::class, 'profile'])->name('profile.show');
+    Route::get('/dashboard', [CustomerController::class, 'show'])->name('dashboard');
+    Route::get('/profiles', [ProfileController::class, 'show'])->name('profile');
 
-    Route::post('/admin/customers', [CustomerController::class, 'CustomerCreate'])->name('customers.store');
-    Route::get('/admin/dashboard/customer', [CustomerController::class, 'Customerdetails'])->name('Admin.dashboard');
-    Route::post('/admin/users-store', [UserController::class, 'UserCreate'])->name('Users.Store');
-    Route::get('/admin/customer/users', [UserController::class, 'userdetails'])->name('users.details');
-    Route::get('/admin/customers/{customerId}/users', [UserController::class, 'CustomerUser'])->name('user.dashboard');
-    Route::get('/admin/customers', [CustomerController::class, 'getCustomersBySearch'])->name('admin.customers.search');
-    Route::put('/customers/{id}/update', [CustomerController::class, 'update'])->name('customer.update');
+    Route::middleware('role:admin')->group(function () {
 
+        // Customer Routes
+        Route::post('/customers', [CustomerController::class, 'create'])->name('customers.store');
 
+        Route::get('/search', [CustomerController::class, 'search'])->name('admin.customers.search');
+        Route::put('/customers/{id}/update', [CustomerController::class, 'update'])->name('customer.update');
 
-});
+        // User Routes
+        Route::post('/users', [UserController::class, 'create'])->name('Users.Store');
+        Route::get('/users', [UserController::class, 'show'])->name('users.details');
+        Route::get('/customers/{customerId}/users', [UserController::class, 'customer_users'])->name('user.dashboard');
+        Route::put('/users/{id}/update', [UserController::class, 'update'])->name('users.update');
 
-Route::group(['middleware' => ['auth:sanctum', 'role:user']], function () {
-    Route::get('/profile', [ProductController::class, 'profile'])->name('profile.show');
+    });
 
-    Route::get('/category', [ProductController::class, 'Category'])->name('categories');
-    Route::post('/createcategory', [ProductController::class, 'createCategory'])->name('categories.create');
-    Route::put('/category/{id}/update',[ ProductController::class,'updateCategory'])->name('categories.updates');
+    Route::middleware('role:user')->group(function () {
 
-    Route::get('/sizes', [ProductController::class, 'Sizes'])->name('sizes');
-    Route::post('/sizecreate', [ProductController::class, 'store'])->name('sizes.store');
-    Route::put('/sizes/{id}/update', [ProductController::class, 'sizeupdate'])->name('sizes.update');
-    Route::get('/products', [ProductController::class, 'getAllProducts'])->name('product.dashboard');
-    Route::get('/products/create', [ProductController::class, 'ProductCreate'])->name('products.create.form');
-    Route::get('/products/{product_id}/edit', [ProductController::class, 'edit'])->name('products.edit');
-    Route::put('/products/{productId}/update', [ProductController::class, 'updateproduct'])->name('products.update');
-    Route::get('/products/images/{product_id}', [ProductController::class, 'showimages'])->name('showimages');
-    Route::put('/images/{id}/soft-delete', [ProductController::class, 'softdelete'])->name('images.soft-delete');
-    Route::get('/category/products/image/{product_id}', [ProductController::class, 'createimages'])->name('imagecreate');
-    Route::post('category/products/images', [ProductController::class, 'createProductWithImages'])->name('products.createWithImages');
-    Route::post('/category/products/items', [ProductController::class, 'createProductWithItem'])->name('products.create.items');
-    Route::get('/sizes/{id}/subsizes', [ProductController::class, 'showSubSizes'])->name('sizes.subsizes');
+        // Category Routes
+        Route::get('/category', [CategoryController::class, 'show'])->name('categories');
+        Route::post('/category', [CategoryController::class, 'create'])->name('categories.create');
+        Route::put('/category/{id}/update', [CategoryController::class, 'update'])->name('categories.updates');
 
-    Route::get('/images/{id}', [ProductController::class, 'delete'])->name('images.delete');
-    Route::get('/products/search', [ProductController::class, 'getProductsBySearch'])->name('products.by.search');
+        // Size Routes
+        Route::get('/sizes', [SizeController::class, 'show_Sizes'])->name('sizes');
+        Route::post('/size', [SizeController::class, 'store'])->name('sizes.store');
+        Route::put('/sizes/{id}/update', [SizeController::class, 'update'])->name('sizes.update');
+        Route::get('/sizes/{id}/subsizes', [SizeController::class, 'show_SubSizes'])->name('sizes.subsizes');
+
+        // Product Routes
+        Route::get('/products', [ProductController::class, 'create'])->name('products.create.form');
+        Route::get('/products/{product_id}/edit', [ProductController::class, 'edit'])->name('products.edit');
+        Route::put('/products/{productId}/update', [ProductController::class, 'update'])->name('products.update');
+        Route::post('/products/create', [ProductController::class, 'stores'])->name('products.create.items');
+        Route::get('/Search', [ProductController::class, 'search'])->name('products.by.search');
+
+        // Image Routes
+        Route::get('/products/images/{product_id}', [ImageController::class, 'show'])->name('showimages');
+        Route::put('/products/images/{id}/soft-delete', [ImageController::class, 'softdelete'])->name('images.soft-delete');
+        Route::get('/category/products/image/{product_id}', [ImageController::class, 'store'])->name('imagecreate');
+        Route::post('category/products/images', [ImageController::class, 'create'])->name('products.createWithImages');
+        Route::get('/images/{id}', [ImageController::class, 'delete'])->name('images.delete');
+
+    });
+
 });

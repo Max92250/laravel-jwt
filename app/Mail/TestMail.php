@@ -5,50 +5,40 @@ namespace App\Mail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Content;
-use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
 class TestMail extends Mailable
 {
     use Queueable, SerializesModels;
 
+
+    public $subject;
+    public $recipientEmail;
+    public $jobId;
+
+
     /**
      * Create a new message instance.
-     */
-    public function __construct(public string $email)
-    {
-       
-    }
-
-    /**
-     * Get the message envelope.
-     */
-    public function envelope(): Envelope
-    {
-        return new Envelope(
-            subject: 'category created success fully',
-        );
-    }
-
-    /**
-     * Get the message content definition.
-     */
-    public function content(): Content
-    {
-        return new Content(
-            view: 'mail.name',
-            with: ['email' => $this->email]
-        );
-    }
-
-    /**
-     * Get the attachments for the message.
      *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
+     * @param string $email
+     * @param string $subject
      */
-    public function attachments(): array
+    public function __construct($recipientEmail, $subject, $jobId)
     {
-        return [];
+        $this->recipientEmail = $recipientEmail; // Corrected assignment
+        $this->subject = $subject;
+        $this->jobId = $jobId;
+    }
+    
+
+    /**
+     * Build the message.
+     *
+     * @return $this
+     */
+    public function build()
+    {
+        return $this->subject($this->subject)
+                    ->view('mail.name');
     }
 }
