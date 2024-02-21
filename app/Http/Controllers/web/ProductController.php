@@ -14,7 +14,8 @@ use App\Models\User;
 use App\Services\ProductService;
 use DB;
 use Illuminate\Support\Facades\Mail;
-
+use Illuminate\Support\Facades\Http;
+use App\Models\Item;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -117,11 +118,40 @@ class ProductController extends Controller
     {
         // Retrieve the product from the database based on the product ID
         $product = Product::findOrFail($productId);
-        $sizes = Size::all();
-        $categories = Category::all();
-        // Pass the product data to the view
-        return view('product.edit', compact('product', 'categories', 'sizes'));
+
+        $response = Http::withHeaders([
+            'apiToken' => '08d3abae99badba40441ca74519c0e11',
+        ])->post('https://voxshipsapi.shikhartech.com/inventoryItems/A2S');
+        
+        if ($response->successful()) {
+            // Retrieve the items from the response
+            $itemsData = $response->json()['result']['customerItems'];
+
+            $items = $product->items;
+
+            // Iterate through the retrieved items
+            foreach ($itemsData as $itemData) {
+                $sku = $itemData['itemSkuNumber'];
+                $quantity = $itemData['A2S'];
+                $status = $itemData['status'];
+                $item = $items->where('sku', $sku)->first();
+                if ($item) {
+                    $item->quantity = $quantity;
+                    $item->status = $status;
+                    $item->save();
+                }
+                return $item->all();
+                
+                
+            }
+    
+            return response()->json(['message' => 'Items updated successfully']);
+        } else {
+            return response()->json(['error' => 'Failed to fetch data from the warehouse API'], $response->status());
+        }
     }
+        
+    
 
     public function show(Request $request)
     {
