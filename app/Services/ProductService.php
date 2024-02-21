@@ -96,7 +96,7 @@ public function createProductWithItems(array $productData, array $itemsData, arr
 
                 $product->update($productData);
                 
-                $product->touch();
+         
 
                 if (!empty($categoryId)) {
                     

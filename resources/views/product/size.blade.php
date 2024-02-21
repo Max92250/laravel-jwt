@@ -83,11 +83,11 @@
                             <td class="border px-4 py-2 text-center align-middle text-center">{{ $size->status }}</td>
                             <td class="border px-4 py-2 text-center align-middle text-center">
                                 {{ \Carbon\Carbon::parse($size->created_at)->setTimezone('Asia/Kathmandu')->format('d/m/Y h:i A') }}
-                                {{ $createdByUsername[$size->created_by] ?? '' }}
+                                {{ $size->createdBy->username ?? '' }}
                                </td>
                             <td class="border px-4 py-2 text-center align-middle text-center">
                                 {{ \Carbon\Carbon::parse($size->created_at)->setTimezone('Asia/Kathmandu')->format('d/m/Y h:i A') }}
-                                {{ $updatedByUsername[$size->updated_by] ?? '' }}</td>
+                                {{ $size->updatedBy->username ?? '' }}</td>
                             <td class="border px-4 py-2 text-center align-middle text-center">
                                 <button class="text-blue-500 hover:underline"
                                     onclick="openEditModal('{{ $size->id }}', '{{ $size->name }}')">

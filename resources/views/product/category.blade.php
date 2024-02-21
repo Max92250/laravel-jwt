@@ -60,9 +60,9 @@
                             <td class="border px-4 py-2 text-center">{{ $category->name }}</td>
                             <td class="border px-4 py-2 text-center">{{ $category->status == 0 ? 'Active' : 'Inactive' }}</td>
                             <td class="border px-4 py-2 text-center">  {{ \Carbon\Carbon::parse($category->created_at)->setTimezone('Asia/Kathmandu')->format('d/m/Y h:i A') }}
-                                {{ $createdByUsername[$category->created_by] ?? '' }}</td>
+                                {{$category->createdBy->username}}</td>
                             <td class="border px-4 py-2 text-center">  {{ \Carbon\Carbon::parse($category->updated_at)->setTimezone('Asia/Kathmandu')->format('d/m/Y h:i A') }}
-                                {{ $updatedByUsername[$category->updated_by] ?? 'Unknown' }}</td>
+                                {{$category->updatedBy->username}}</td>
                                 <td class="border px-4 py-2 text-center align-middle text-center">
                                     <button class="text-blue-500 hover:underline"
                                         onclick="openEditModal('{{ $category->id }}', '{{ $category->name }}')">
@@ -85,6 +85,7 @@
                 <div class="mb-4">
                     <input type="text" id="sizeName" name="name"
                         class="block w-full p-2 border border-gray-300 rounded-md ">
+                        
                 </div>
                 <button type="submit"
                     class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded shadow">

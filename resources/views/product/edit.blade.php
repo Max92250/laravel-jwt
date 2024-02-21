@@ -2,17 +2,18 @@
 
 @section('section7')
     <div class="container mx-auto  mt-10 bg-gray-100 p-8  ">
-        <div class="w-3/4 bg-white ml-60 rounded-lg shadow-md p-6">
-            @if ($errors->has('items'))
-            <div class="alert alert-danger">
-                <ul>
-                    @foreach ($errors->get('items') as $error)
-                        <div>{{ $error }}</div>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
-        
+        <div class="w-3/4 mt-20 bg-white ml-60 rounded-lg shadow-md p-6">
+                   
+    @if ($errors->any())
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+        <strong class="font-bold">Validation Error!</strong>
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
             <h1 class="text-3xl text-gray-600 font-bold mb-6">Edit Product</h1>
             <form method="POST" action="{{ route('products.update', $product->id) }}">
                 @csrf

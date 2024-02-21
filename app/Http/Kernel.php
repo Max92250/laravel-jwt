@@ -36,6 +36,7 @@ class Kernel extends HttpKernel
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
+          
         ],
 
         'api' => [
@@ -44,14 +45,16 @@ class Kernel extends HttpKernel
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             
         ],
+        
     ];
     protected $routeMiddleware = [
    
-        'login' => \App\Http\Middleware\TestLogin::class,
+        'role' => \App\Http\Middleware\TestLogin::class,
         'jwt.verify' => \App\Http\Middleware\ParseTokenAuthenticate::class,
         'jwt.auth' => 'Tymon\JWTAuth\Middleware\GetUserFromToken',
         'jwt.refresh' => 'Tymon\JWTAuth\Middleware\RefreshToken',
         'cors'=>\App\Http\Middleware\CorsMiddleware::class,
+        'auth:sanctum' => \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
     
         
     ];

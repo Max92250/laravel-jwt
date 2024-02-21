@@ -5,14 +5,16 @@ namespace App\Http\Controllers\web;
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\User;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Auth;
 class CustomerController extends Controller
 {
 
-    public function CustomerCreate(Request $request)
+    public function create(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string',
@@ -46,20 +48,30 @@ class CustomerController extends Controller
         }
     }
 
-    public function Customerdetails()
+    public function show(Request $request)
     {
-        $customers = Customer::all();
-        $createdByUsernames = User::whereIn('id', $customers->pluck('created_by')->unique())
-            ->pluck('username', 'id');
+        $userRole = Auth::user()->type;
 
-        $updatedByUsernames = User::whereIn('id', $customers->pluck('updated_by')->unique())
-            ->pluck('username', 'id');
-
-        return view('admin.dashboard', ['customers' => $customers, 'createdByUsernames' => $createdByUsernames,
-            'updatedByUsernames' => $updatedByUsernames]);
+        // Fetch data based on the user's role
+        if ($userRole === 'admin') {
+            $customers = Customer::with('createdBy', 'updatedBy')->get();
+            return view('admin.dashboard', ['customers' => $customers]);
+        }
+        elseif ($userRole === 'user') {
+            $customer = Customer::where('id', $request->user()->customer_id)->first();
+    
+            if ($customer) {
+                // Fetch products for the user's customer
+                $products = Product::where('customer_id', $customer->id)->with('createdBy', 'updatedBy')->latest()->get();
+    
+                return view('admin.dashboard', ['products' => $products]);
+            }
+        }
+    
     }
 
-    public function getCustomersBySearch(Request $request)
+      
+    public function search(Request $request)
     {
         // Get the search query from the request
         $searchQuery = $request->input('q');
@@ -87,10 +99,9 @@ class CustomerController extends Controller
     
         $validator = $request->validate([
             'name' => 'sometimes|required|string',
-            'identifier' => 'sometimes|required|string|unique:customers,identifier,', 
+            'identifier' => 'sometimes|required|string|unique:customers,identifier,' . $id, 
         ]);
 
-     
 
         // Update the customer details if changes are made
         if ($request->filled('name')) {

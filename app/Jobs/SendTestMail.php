@@ -29,10 +29,7 @@ class SendTestMail implements ShouldQueue
         Mail::to($this->recipientEmail)->send(new TestMail($this->recipientEmail, 'Generic Email', $this->jobId));
     }
 
-    public function withBatchId()
-    {
-        return $this->jobId;
-    }
+   
     
   
 }

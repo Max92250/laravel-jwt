@@ -12,39 +12,7 @@ use Illuminate\Support\Facades\Validator;
 class UserController extends Controller
 {
 
-    public function loginform()
-    {
-        return view('User.login');
-    }
-
-    public function login(Request $request)
-    {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
-
-        $credentials = $request->only('email', 'password');
-
-        if (Auth::attempt($credentials)) {
-            $user = Auth::user();
-
-            $token = $user->createToken('laravel_token')->plainTextToken;
-            $request->session()->put('role', $user->type);
-            // Store user email in session
-            $request->session()->put('user', $user->username);
-            // Check if the user is an admin
-            if ($user->type === 'admin') {
-                return redirect()->route('Admin.dashboard')->with('success', 'Login successful.');
-            } else {
-                return redirect()->route('product.dashboard')->with('success', 'Login successful.');
-            }
-        }
-
-        return redirect()->back()->with('error', 'Invalid credentials.');
-    }
-
-    public function UserCreate(Request $request)
+    public function create(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'email' => 'required|email|unique:users,email',
@@ -56,30 +24,28 @@ class UserController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        try {
-            $userData = [
-                'email' => $request->email,
-                'password' => bcrypt($request->password),
-                'username' => $request->username,
-            ];
+        $userData = [
+            'email' => $request->email,
+            'password' => bcrypt($request->password),
+            'username' => $request->username,
+        ];
 
-            if ($request->filled('customer_id')) {
-                $userData['customer_id'] = $request->customer_id;
-            } else {
-                // If no customer ID is selected, set the type to "admin"
-                $userData['type'] = 'admin';
-            }
-
-            User::create($userData);
-
-            return redirect()->route('users.details')->with('success', 'User created successfully');
-        } catch (\Exception $e) {
-            
-            return back()->withInput()->withErrors(['error' => 'Failed to create Users. Please try again.']);
+        if ($request->filled('customer_id')) {
+            $userData['customer_id'] = $request->customer_id;
+            $userData['created_by'] = $request->user()->id;
+            $userData['updated_by'] = $request->user()->id;
+        } else {
+            // If no customer ID is selected, set the type to "admin"
+            $userData['type'] = 'admin';
         }
+
+        User::create($userData);
+
+        return redirect()->route('users.details')->with('success', 'User created successfully');
+
     }
 
-    public function CustomerUser($customerId)
+    public function customer_users($customerId)
     {
         // Fetch user details based on the customer ID
         $user = User::where('customer_id', $customerId)->get();
@@ -91,35 +57,39 @@ class UserController extends Controller
         return view('admin.user_dashboard', compact('user'));
     }
 
-    public function userdetails()
+    public function show()
     {
-
-        $users = User::where('type', '!=', 'admin')->get();
-
-        foreach ($users as $user) {
-            $customer = Customer::find($user->customer_id);
-            $user->customer_name = $customer ? $customer->name : 'N/A';
-        }
+        $users = User::where('type', '!=', 'admin')
+        ->with('creator','updator','createdBy')
+        ->get();
+        
 
         $customers = Customer::all();
         // Pass users to the blade view
         return view('admin.user_details', compact('users', 'customers'));
     }
-
-    public function logout(Request $request)
+    public function update(Request $request, $id)
     {
 
-        if ($request->user()) {
-            $user = $request->user();
+        $user = User::findOrFail($id);
 
-            $user->tokens()->delete();
+        // Validate the incoming data from the client-side
+        $validator = $request->validate([
+            'username' => 'sometimes|required|string|unique:users,username,' . $id,
+        ]);
 
-            Auth::logout();
-            
-            $request->session()->forget('role');
-
-            return redirect('login')->with('success', 'Please log in.');
+        // Update the username if changes are made
+        if ($request->filled('username')) {
+            $user->username = $request->input('username');
         }
+        $adminUser = Auth::user();
+        $user->updated_by = $adminUser->id;
+
+        // Save the changes
+        $user->save();
+
+        return redirect()->back()->with('success', 'User details updated successfully.');
+
     }
-    
+
 }

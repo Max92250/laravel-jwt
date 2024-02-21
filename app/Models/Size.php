@@ -10,7 +10,7 @@ class Size extends Model
     use HasFactory;
 
     protected $fillable = ['parent_id', 'name', 'status'  ,'created_by',
-    'updated_by','user_id'];
+    'updated_by','customer_id'];
 
     public function subSizes()
     {
@@ -21,5 +21,13 @@ class Size extends Model
         return $this->hasOne(Item::class, 'size_id');
     }
 
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_by', 'id');
+    }
     
+    public function updatedBy()
+    {
+        return $this->belongsTo(User::class, 'updated_by', 'id');
+    }
 }

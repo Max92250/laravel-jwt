@@ -23,10 +23,10 @@ class TestMail extends Mailable
      * @param string $email
      * @param string $subject
      */
-    public function __construct($recipientEmail, $subject, $jobId)
+    public function __construct($recipientEmail, $jobId)
     {
         $this->recipientEmail = $recipientEmail; // Corrected assignment
-        $this->subject = $subject;
+    
         $this->jobId = $jobId;
     }
     
@@ -38,7 +38,8 @@ class TestMail extends Mailable
      */
     public function build()
     {
-        return $this->subject($this->subject)
+        return $this->to($this->recipientEmail)
+                   
                     ->view('mail.name');
     }
 }

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Product extends Model
 {
     use HasFactory;
-    protected $fillable = ['name', 'description' ,'created_by', 'updated_by','user_id','customer_id'];
+    protected $fillable = ['name', 'description' ,'created_by', 'updated_by','customer_id'];
 
   
     public function categories()
@@ -36,5 +36,14 @@ class Product extends Model
         return $this->belongsTo(Customer::class);
     }
 
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_by', 'id');
+    }
     
+    public function updatedBy()
+    {
+        return $this->belongsTo(User::class, 'updated_by', 'id');
+    }
+
 }

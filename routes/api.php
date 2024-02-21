@@ -14,7 +14,6 @@ Route::prefix('')->group(function () {
     Route::post('password/reset/{token}', [PasswordResetController::class, 'reset'])->name('password.reset');
 
     // Protected routes with JWT middleware
-    Route::group(['middleware' => ['jwt.verify']], function () {
 
         // GET Routes
         Route::get('/products', [ProductController::class, 'getAllProducts'])->name('products.all');
@@ -24,7 +23,7 @@ Route::prefix('')->group(function () {
         Route::get('/items/by-size/{sizeId}', [ProductController::class, 'getBySizeId']);
 
         // POST Routes
-        Route::post('/products/items', [ProductController::class, 'createProductWithItems'])->name('products.create-with-items');
+        Route::post('/products/items', [ProductController::class, 'updateItemsFromWarehouse'])->name('products.create-with');
         Route::post('products/category', [ProductController::class, 'createCategory']);
         Route::post('/products/images', [ProductController::class, 'createProductWithImages'])->name('images.create');
         Route::post('/sizes', [ProductController::class, 'store']);
@@ -39,5 +38,5 @@ Route::prefix('')->group(function () {
 
         // Logout Route
         Route::get('/logout', [LogoutController::class, 'logout'])->name('users.logout');
-    });
+    
 });

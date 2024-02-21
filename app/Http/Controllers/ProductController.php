@@ -10,6 +10,7 @@ use App\Models\size;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\QueryException;
 use App\Traits\LogTrait;
+use Illuminate\Support\Facades\Http;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -50,7 +51,39 @@ class ProductController extends Controller
     // Return the id of the newly created Category object as a JSON response
         return response()->json(['status' => 'success', 'category_id' => $category->id]);
     }
+   
+    public function updateItemsFromWarehouse()
+    {
+        // Fetch data from the warehouse API
+        $response = Http::post('https://voxshipsapi.shikhartech.com/inventoryItems/A2S');
     
+        if ($response->successful()) {
+            // Retrieve the items from the response
+            $itemsData = $response->json()['result']['customerItems'];
+
+    
+            // Iterate through the retrieved items
+            foreach ($itemsData as $itemData) {
+                $sku = $itemData['itemSkuNumber'];
+                $quantity = $itemData['A2S'];
+                $status = $itemData['status'];
+    
+                // Update the corresponding item in your database
+                $item = Item::where('sku', $sku)->first();
+    
+                if ($item) {
+                    $item->update([
+                        'quantity' => $quantity,
+                        'status' => $status
+                    ]);
+                }
+            }
+    
+            return response()->json(['message' => 'Items updated successfully']);
+        } else {
+            return response()->json(['error' => 'Failed to fetch data from the warehouse API'], $response->status());
+        }
+    }
     //Create a new product with its associated items in the database.
     public function createProductWithItems(Request $request)
     {

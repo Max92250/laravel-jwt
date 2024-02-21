@@ -19,15 +19,15 @@
                 @foreach ($sizes as $subSize)
                     @if ($subSize->parent_id === $size->id)
                         <tr>
-                            <td class="border px-4 py-2 align-middle text-center">{{ $sn++ }}</td>
+                             <td class="border px-4 py-2 align-middle text-center">{{ $sn++ }}</td>
                             <td class="border px-4 py-2 align-middle text-center">{{ $subSize->name }}</td>
                             <td class="border px-4 py-2 align-middle text-center">{{ $subSize->status }}</td>
                             <td class="border px-4 py-2 align-middle text-center">
                                 {{ date('d/m/Y h:i A', strtotime($subSize->created_at)) }}
-                                {{ $createdByUsernames[$subSize->created_by] ?? 'Unknown' }}</td>
+                             {{$subSize->createdBy->username}}</td>
                             <td class="border px-4 py-2 align-middle text-center">
                                 {{ date('d/m/Y h:i A', strtotime($subSize->updated_at)) }}
-                                {{ $updatedByUsernames[$subSize->updated_by] ?? 'Unknown' }}
+                                {{$subSize->updatedBy->username}}
                                </td>
                                </td>
                             <td class="border px-4 py-2 align-middle text-center">

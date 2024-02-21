@@ -2,6 +2,11 @@
 
 @section('section')
 
+
+
+
+
+
 <div class="bg-white shadow-md rounded-lg overflow-hidden mt-20 mx-auto">
     <div class="overflow-x-auto">
         <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 ">
@@ -35,7 +40,7 @@
                     @endif
                 </td>
                 <td class="border px-4 py-2">{{ $product->name }}</td>
-                <td class="border px-4 py-2 w-100">
+                <td class="border px-4 py-2 w-600">
                     @if (strlen($product->description) > 100)
                         <span id="shortDesc_{{ $product->id }}">
                             {{ substr($product->description, 0, 100) }}...
@@ -64,8 +69,8 @@
                         @endforeach
                     </div>
                 </td>
-                <td class="border px-4 py-4 text-center">{{ \Carbon\Carbon::parse($product->created_at)->setTimezone('Asia/Kathmandu')->format('d/m/Y h:i A') }} {{$product->user_name}}</td>
-                <td class="border px-4 text-center py-4">{{ \Carbon\Carbon::parse($product->updated_at)->setTimezone('Asia/Kathmandu')->format('d/m/Y h:i A') }} {{$product->user_name}}</td>
+                <td class="border px-4 py-4 text-center">{{ \Carbon\Carbon::parse($product->created_at)->setTimezone('Asia/Kathmandu')->format('d/m/Y h:i A') }} {{ $product->createdBy->username ?? 'Unknown' }}</td>
+                <td class="border px-4 text-center py-4">{{ \Carbon\Carbon::parse($product->updated_at)->setTimezone('Asia/Kathmandu')->format('d/m/Y h:i A') }}  {{ $product->updatedBy->username ?? 'Unknown' }}</td>
                 <td class="border px-4 py-2 text-center">
                     <a href="{{ route('showimages', ['product_id' => $product->id]) }}">
                         <i class="fas fa-images text-blue-500 cursor-pointer mr-2"></i>
@@ -78,6 +83,8 @@
             </tr>
             @endforeach
         </table>
+       
+
     </div>
 </div>
 
@@ -102,4 +109,5 @@
     }
 
 </script>
+
 @endsection

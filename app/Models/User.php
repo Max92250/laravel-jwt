@@ -19,14 +19,30 @@ class User extends Authenticatable implements JWTSubject
      * @var array<int, string>
      */
     protected $fillable = [
-        'email', 'password', 'customer_id','type','username'
+        'email', 'password', 'customer_id', 'type', 'username', 'created_by', 'updated_by',
     ];
 
     public function isAdmin()
     {
         return $this->type === 'admin';
     }
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
 
+    public function hasRole($role)
+    {
+        return $this->type === $role;
+    }
+    public function updator()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
+    public function createdBy()
+    {
+        return $this->belongsTo(Customer::class, 'customer_id', 'id');
+    }
     public $timestamps = false;
     /**
      * The attributes that should be hidden for serialization.
