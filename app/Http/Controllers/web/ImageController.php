@@ -21,6 +21,12 @@ use Illuminate\Support\Facades\Auth;
 class ImageController extends Controller
 {
     
+    protected $productService;
+
+    public function __construct(ProductService $productService)
+    {
+        $this->productService = $productService;
+    }
     public function create(Request $request)
     {
         $request->validate([

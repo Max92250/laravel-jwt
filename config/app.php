@@ -196,4 +196,10 @@ return [
    'JWTAuth' => Tymon\JWTAuth\Facades\JWTAuth::class,
     ])->toArray(),
 
+    'config' => [
+        'warehouse_api_token' => '08d3abae99badba40441ca74519c0e11',
+        'warehouse_api_url' => 'https://voxshipsapi.shikhartech.com/inventoryItems/A2S',
+    ],
+
+   
 ];

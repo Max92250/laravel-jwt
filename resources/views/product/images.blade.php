@@ -27,7 +27,6 @@
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 ">
                         <thead class="text-xs text-gray-700 uppercase dark:text-gray-400 bg-gray-200">
-
                             <tr>
                                 <th class="px-4 py-2">Image</th>
                                 <th class="px-4 py-2">Created At</th>
@@ -39,7 +38,7 @@
                             @foreach ($product->images as $image)
                                 <tr class="border-b border-gray-200 dark:border-gray-700">
                                     <td class="fixed-column border px-4 py-2 w-48 text-center">
-                                        <img src="{{ asset('images/' . $image->image_path) }}" class="w-20 h-auto mx-auto"
+                                        <img src="{{ asset('images/' . $image->image_path) }}" class="w-12 h-auto mx-auto"
                                             alt="Product Image">
                                     </td>
                                     <td class="border px-4 py-2">{{ $image->created_at }}</td>

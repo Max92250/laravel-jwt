@@ -23,7 +23,7 @@ Route::prefix('')->group(function () {
         Route::get('/items/by-size/{sizeId}', [ProductController::class, 'getBySizeId']);
 
         // POST Routes
-        Route::post('/products/items', [ProductController::class, 'updateItemsFromWarehouse'])->name('products.create-with');
+        Route::get('/product/items', [ProductController::class, 'updateItemsFromWarehouse'])->name('products.create-with');
         Route::post('products/category', [ProductController::class, 'createCategory']);
         Route::post('/products/images', [ProductController::class, 'createProductWithImages'])->name('images.create');
         Route::post('/sizes', [ProductController::class, 'store']);

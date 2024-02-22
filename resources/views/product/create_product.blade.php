@@ -5,19 +5,19 @@
     <div class="container mx-auto mt-20">
         <div class="w-4/5 mx-auto bg-white p-8 rounded-lg shadow-md">
             <h1 class="text-center text-2xl font-bold mb-4">Create Product with Items</h1>
-         
-    @if ($errors->any())
-    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
-        <strong class="font-bold">Validation Error!</strong>
-        <ul>
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-@endif
 
-           
+            @if ($errors->any())
+                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+                    <strong class="font-bold">Validation Error!</strong>
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+
             <form action="{{ route('products.create.items') }}" method="POST" id="product-form">
                 @csrf
                 <div class="mb-4">
@@ -48,10 +48,15 @@
                 <h3 class="mb-2 text-lg font-medium">Items:</h3>
                 <div id="items">
                     <div class="item mb-4">
-                        <div class="grid grid-cols-4 gap-4">
+                        <div class="grid grid-cols-5 gap-4">
                             <div>
                                 <label for="price" class="block text-sm font-medium text-gray-700">Price:</label>
                                 <input type="number" name="items[0][price]" required
+                                    class="mt-1 p-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                            </div>
+                            <div>
+                                <label for="quantity" class="block text-sm font-medium text-gray-700">Quantity:</label>
+                                <input type="number" name="items[0][quantity]" required
                                     class="mt-1 p-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
                             </div>
                             <div>
@@ -82,7 +87,9 @@
                         </div>
                     </div>
                 </div>
-                <button type="button" class="bg-white mb-2 hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow" id="add-item">Add Item</button>
+                <button type="button"
+                    class="bg-white mb-2 hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow"
+                    id="add-item">Add Item</button>
                 <hr class="mb-4">
                 <button type="submit"
                     class="inline-block px-6 py-2 text-xs font-medium leading-6 text-center text-white uppercase transition bg-green-500 rounded shadow ripple hover:shadow-lg hover:bg-green-600 focus:outline-none">
@@ -108,14 +115,18 @@
 
             addItemButton.addEventListener('click', function() {
                 itemIndex++;
-
                 const newItem = document.createElement('div');
                 newItem.classList.add('item', 'mb-4');
                 newItem.innerHTML = `
-                    <div class="grid grid-cols-4 gap-4">
+                    <div class="grid grid-cols-5 gap-4">
                         <div>
                             <label for="price" class="block text-sm font-medium text-gray-700">Price:</label>
                             <input type="number" name="items[${itemIndex}][price]" required
+                                class="mt-1 p-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label for="quantity" class="block text-sm font-medium text-gray-700">Quantity:</label>
+                            <input type="number" name="items[${itemIndex}][quantity]" required
                                 class="mt-1 p-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
                         </div>
                         <div>

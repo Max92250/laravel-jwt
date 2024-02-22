@@ -20,8 +20,6 @@ public function createProductWithItems(array $productData, array $itemsData, arr
 {
     try {
         DB::beginTransaction();
-        
-    
     
         // Create a new product
         $product = Product::create($productData);
@@ -34,6 +32,7 @@ public function createProductWithItems(array $productData, array $itemsData, arr
             return [
                 'sku' => $item['sku'],
                 'price' => $item['price'],
+                'quantity' => $item['quantity'],
                 'size_id' => $item['size_id'],
                 'color' => $item['color'],
             ];
@@ -122,6 +121,7 @@ public function createProductWithItems(array $productData, array $itemsData, arr
                             }
                             $updateFields = [ // Prepare the fields to update
                                 'price' => $itemData['price'] ?? $item->price,
+                                'quantity' => $itemData['quantity'] ?? $item->quantity,
                                 'size_id' => $itemData['size_id'] ?? $item->size,
                                 'color' => $itemData['color'] ?? $item->color,
                                 'sku' => $itemData['sku'] ?? $item->sku
@@ -138,6 +138,7 @@ public function createProductWithItems(array $productData, array $itemsData, arr
                             $itemsToCreate[] = [ // Prepare the fields to create a new item
                                 'product_id' => $product->id,
                                 'price' => $itemData['price'],
+                                'quantity' => $itemData['price'],
                                 'size_id' => $itemData['size_id'],
                                 'color' => $itemData['color'],
                                 'sku' => $itemData['sku'],
