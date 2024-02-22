@@ -55,8 +55,10 @@ class ProductController extends Controller
     public function updateItemsFromWarehouse()
     {
         // Fetch data from the warehouse API
-        $response = Http::post('https://voxshipsapi.shikhartech.com/inventoryItems/A2S');
-    
+        $response = Http::withHeaders([
+            'apiToken' => '08d3abae99badba40441ca74519c0e11',
+        ])->post('https://voxshipsapi.shikhartech.com/inventoryItems/A2S');
+        
         if ($response->successful()) {
             // Retrieve the items from the response
             $itemsData = $response->json()['result']['customerItems'];
@@ -67,16 +69,15 @@ class ProductController extends Controller
                 $sku = $itemData['itemSkuNumber'];
                 $quantity = $itemData['A2S'];
                 $status = $itemData['status'];
-    
                 // Update the corresponding item in your database
                 $item = Item::where('sku', $sku)->first();
-    
-                if ($item) {
-                    $item->update([
-                        'quantity' => $quantity,
-                        'status' => $status
-                    ]);
-                }
+                $item->quantity = $quantity;
+                $item->status = $status;
+                $item->save();
+                return $item;
+                    
+                
+                
             }
     
             return response()->json(['message' => 'Items updated successfully']);
