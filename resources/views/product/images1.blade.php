@@ -3,7 +3,7 @@
 
 @section('section2')
 
-
+@can('view-product-images', $product)
     <div class="bg-white shadow-md rounded-lg overflow-hidden w-full mt-20 mx-auto">
         <div class="overflow-x-auto">
             <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 table-auto">
@@ -45,6 +45,15 @@
             </table>
         </div>
     </div>
+    @else
+    <div class="mt-24 flex justify-center">
+        <div class="bg-gray-200 text-gray-800 px-6 py-4 rounded shadow-md">
+            <div class="text-lg font-bold mb-2">Unauthorized Access</div>
+            <div class="text-sm">You are not authorized to view these images.</div>
+        </div>
+    </div>
+    
+@endcan
     <script>
         
     </script>

@@ -60,7 +60,7 @@ class ImageController extends Controller
         // Filter images based on product ID
         $images = $product->images->where('product_id', $product->id)->where('status', 1);
 
-        return view('product.images1', compact('images'));
+        return view('product.images1', compact('product','images'));
     }
 
     public function update(Request $request, $productId)

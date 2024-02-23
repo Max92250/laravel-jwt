@@ -105,41 +105,46 @@ class ProductController extends Controller
 
     public function edit($productId)
     {
-        $product = Product::find($productId);
-        if (!$product) {
-            abort(404);
+        if (auth()->user()->hasPermission('edit-product')) {
+
+            $product = Product::find($productId);
+            if (!$product) {
+                abort(404);
+            }
+            $skus = $product->items()->pluck('sku')->toArray();
+
+            $payload = [
+                'itemSkuNumbers' => $skus,
+            ];
+            $url = env('WAREHOUSE_API_URL');
+
+            $response = Http::withHeaders(['apiToken' => config('app.config.warehouse_api_token')])
+                ->post(config('app.config.warehouse_api_url'), $payload);
+
+            if ($response->successful()) {
+                $itemsData = $response->json()['result']['customerItems'] ?? [];
+                $product->items->each(function ($item) use ($itemsData) {
+                    $itemData = collect($itemsData)->firstWhere('itemSkuNumber', $item->sku);
+                    if ($itemData) {
+                        $item->quantity = $itemData['A2S'];
+                        $item->status = $itemData['status'] == 1 ? 'active' : 'inactive';
+                    } else {
+                        $item->quantity = 0;
+                        $item->status = 'inactive';
+                    }
+                    $item->save();
+                });
+
+            }
+
+            $customerId = auth()->user()->customer_id;
+            $categories = Category::where('customer_id', $customerId)->get();
+            $sizes = Size::where('customer_id', $customerId)->get();
+
+            return view('product.edit', compact('product', 'categories', 'sizes'));
+        } else {
+            abort(403);
         }
-        $skus = $product->items()->pluck('sku')->toArray();
-
-        $payload = [
-            'itemSkuNumbers' => $skus,
-        ];
-        $url = env('WAREHOUSE_API_URL');
-
-        $response = Http::withHeaders(['apiToken' => config('app.config.warehouse_api_token')])
-            ->post(config('app.config.warehouse_api_url'), $payload);
-
-        if ($response->successful()) {
-            $itemsData = $response->json()['result']['customerItems'] ?? [];
-            $product->items->each(function ($item) use ($itemsData) {
-                $itemData = collect($itemsData)->firstWhere('itemSkuNumber', $item->sku);
-                if ($itemData) {
-                    $item->quantity = $itemData['A2S'];
-                    $item->status = $itemData['status'] == 1 ? 'active' : 'inactive';
-                } else {
-                    $item->quantity = 0;
-                    $item->status = 'inactive';
-                }
-                $item->save();
-            });
-
-        }
-
-        $customerId = auth()->user()->customer_id;
-        $categories = Category::where('customer_id', $customerId)->get();
-        $sizes = Size::where('customer_id', $customerId)->get();
-
-        return view('product.edit', compact('product', 'categories', 'sizes'));
 
     }
 
@@ -196,11 +201,18 @@ class ProductController extends Controller
 
     public function create()
     {
+        if(auth()->user()->hasPermission('create-product')){
+        
         $user = auth()->user();
         $categories = Category::where('customer_id', $user->customer_id)->get();
         $sizes = Size::where('customer_id', $user->customer_id)->get();
 
         return view('product.create_product', compact('categories', 'sizes')); // Pass both categories and sizes to the view
+
+        }else{
+            abort(403);
+        }
     }
+
 
 }

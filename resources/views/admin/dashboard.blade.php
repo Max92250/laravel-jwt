@@ -264,16 +264,17 @@
                     <a href="{{ route('showimages', ['product_id' => $product->id]) }}">
                         <i class="fas fa-images text-blue-500 cursor-pointer mr-2"></i>
                     </a>
+                    @if(Auth::user()->hasPermission('edit-product'))
                     <a href="{{ route('products.edit', ['product_id' => $product->id]) }}">
                         <i class="fas fa-edit text-blue-500 cursor-pointer"></i> <!-- Edit Icon -->
                     </a>
+                @endif
                 </td>
              
             </tr>
             @endforeach
         </table>
        
-
     </div>
 </div>
 

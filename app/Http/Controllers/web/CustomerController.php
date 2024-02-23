@@ -50,6 +50,7 @@ class CustomerController extends Controller
 
     public function show(Request $request)
     {
+        
         $userRole = Auth::user()->type;
 
         // Fetch data based on the user's role
@@ -58,6 +59,7 @@ class CustomerController extends Controller
             return view('admin.dashboard', ['customers' => $customers]);
         }
         elseif ($userRole === 'user') {
+            
             $customer = Customer::where('id', $request->user()->customer_id)->first();
     
             if ($customer) {
@@ -73,6 +75,7 @@ class CustomerController extends Controller
       
     public function search(Request $request)
     {
+
         // Get the search query from the request
         $searchQuery = $request->input('q');
         try {

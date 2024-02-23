@@ -43,6 +43,8 @@ class CategoryController extends Controller
 
      public function show(Request $request)
      {
+        if (auth()->user()->hasPermission('access-category-page')) {
+
          $user = Auth::user();
          $categories = Category::where('customer_id', $user->customer_id)
          ->with('createdBy','updatedBy')
@@ -54,6 +56,9 @@ class CategoryController extends Controller
              'categories' => $categories,
          
          ]);
+        }else{
+            abort(403);
+        }
      }
      
      public function create(Request $request)
