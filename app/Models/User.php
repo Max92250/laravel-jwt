@@ -3,13 +3,13 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\Role;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Tymon\JWTAuth\Contracts\JWTSubject;
-use App\Models\Role;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable implements JWTSubject
 {
@@ -64,7 +64,7 @@ class User extends Authenticatable implements JWTSubject
     {
         // Retrieve all roles associated with the user
         $roles = $this->roles()->with('permissions')->get();
-       
+
         // Flatten the permissions and check if the specified permission exists
         return $roles->pluck('permissions')->flatten()->pluck('name')->contains($permissionName);
     }

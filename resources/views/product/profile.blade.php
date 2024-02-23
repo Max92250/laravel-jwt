@@ -5,7 +5,7 @@
     <div class="bg-gray-100">
 
         <!-- End of Navbar -->
-        @can('view-profile')
+    
             <div class="container  mx-auto my-5 p-5">
                 <div class="md:flex  mt-10 no-wrap md:-mx-2 ">
                     <!-- Left Side -->
@@ -91,5 +91,5 @@
 
                     </div>
                 </div>
-            @endcan
+          
         @endsection
