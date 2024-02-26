@@ -69,18 +69,6 @@
                     @endif
 
                 </div>
-                <div class="relative mr-4">
-                    @if (auth()->user()->Role('admin'))
-                        <a class="text-black hover:text-gray-300 focus:outline-none" href="{{route('roles.index')}}">Roles</a>
-                    @endif
-
-                </div>
-                <div class="relative mr-4">
-                    @if (auth()->user()->Role('admin'))
-                        <a href="{{route('role.index')}}" class="text-black hover:text-gray-300 focus:outline-none" href="">Users</a>
-                    @endif
-
-                </div>
 
 
             </div>
@@ -133,7 +121,6 @@
     @yield('section6')
     @yield('section7')
     @yield('section8')
-    @yield('section9')
     <script>
         function UserChange(select) {
             const selectedOption = select.options[select.selectedIndex].value;

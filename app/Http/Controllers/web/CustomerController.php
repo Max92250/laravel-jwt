@@ -4,13 +4,13 @@ namespace App\Http\Controllers\web;
 
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
-use App\Models\Product;
 use App\Models\User;
+use App\Models\Product;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
-
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Auth;
 class CustomerController extends Controller
 {
 
@@ -50,35 +50,29 @@ class CustomerController extends Controller
 
     public function show(Request $request)
     {
-
         $userRole = Auth::user()->type;
 
         // Fetch data based on the user's role
         if ($userRole === 'admin') {
             $customers = Customer::with('createdBy', 'updatedBy')->get();
             return view('admin.dashboard', ['customers' => $customers]);
-        } elseif ($userRole === 'user') {
-
-            if (auth()->user()->hasPermission('access-dashboard')) {
-                $customer = Customer::where('id', $request->user()->customer_id)->first();
-
-                if ($customer) {
-                    // Fetch products for the user's customer
-                    $products = Product::where('customer_id', $customer->id)->with('createdBy', 'updatedBy')->latest()->get();
-
-                    return view('admin.dashboard', ['products' => $products]);
-                }
-            } else {
-                abort(403);
-            }
-
         }
-
+        elseif ($userRole === 'user') {
+            $customer = Customer::where('id', $request->user()->customer_id)->first();
+    
+            if ($customer) {
+                // Fetch products for the user's customer
+                $products = Product::where('customer_id', $customer->id)->with('createdBy', 'updatedBy')->latest()->get();
+    
+                return view('admin.dashboard', ['products' => $products]);
+            }
+        }
+    
     }
 
+      
     public function search(Request $request)
     {
-
         // Get the search query from the request
         $searchQuery = $request->input('q');
         try {
@@ -102,11 +96,12 @@ class CustomerController extends Controller
     {
         // Validate the incoming data from the client-side
         $customer = Customer::find($id);
-
+    
         $validator = $request->validate([
             'name' => 'sometimes|required|string',
-            'identifier' => 'sometimes|required|string|unique:customers,identifier,' . $id,
+            'identifier' => 'sometimes|required|string|unique:customers,identifier,' . $id, 
         ]);
+
 
         // Update the customer details if changes are made
         if ($request->filled('name')) {
@@ -120,8 +115,8 @@ class CustomerController extends Controller
 
         // Save the changes
         $customer->save();
-
+    
         return redirect()->back()->with('success', 'Customer updated successfully.');
     }
-
+    
 }

@@ -1,6 +1,5 @@
 
 public/images/
 vendor
-.env
-/zzz
 node_modules
+.env

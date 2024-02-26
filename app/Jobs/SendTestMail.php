@@ -22,7 +22,6 @@ class SendTestMail implements ShouldQueue
     {
         $this->recipientEmail = $recipientEmail;
         $this->jobId = $jobId;
-        
     }
 
     public function handle()

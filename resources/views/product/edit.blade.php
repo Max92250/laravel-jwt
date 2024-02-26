@@ -1,7 +1,6 @@
 @extends('product.nav')
 
 @section('section7')
-
     <div class="container mx-auto  mt-10 bg-gray-100 p-8  ">
         <div class="w-4/5 mt-20 bg-white ml-60 rounded-lg shadow-md p-6">
 
@@ -16,7 +15,6 @@
                 </div>
             @endif
             <h1 class="text-3xl text-gray-600 font-bold mb-6">Edit Product</h1>
-          
             <form method="POST" action="{{ route('products.update', $product->id) }}">
                 @csrf
                 @method('PUT')
@@ -129,7 +127,6 @@
             </form>
         </div>
     </div>
-  
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {

@@ -2,7 +2,6 @@
 
 @section('section4')
     <div id="overlay" class="fixed top-0 left-0 w-full h-full bg-black opacity-30 z-20" style="display: none;"></div>
-
     <div class="bg-white shadow-md rounded-lg overflow-hidden mt-20 mx-auto">
         <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 ">
             <thead class="text-xs text-gray-700 uppercase dark:text-gray-400 bg-gray-200">
@@ -20,17 +19,17 @@
                 @foreach ($sizes as $subSize)
                     @if ($subSize->parent_id === $size->id)
                         <tr>
-                            <td class="border px-4 py-2 align-middle text-center">{{ $sn++ }}</td>
+                             <td class="border px-4 py-2 align-middle text-center">{{ $sn++ }}</td>
                             <td class="border px-4 py-2 align-middle text-center">{{ $subSize->name }}</td>
                             <td class="border px-4 py-2 align-middle text-center">{{ $subSize->status }}</td>
                             <td class="border px-4 py-2 align-middle text-center">
                                 {{ date('d/m/Y h:i A', strtotime($subSize->created_at)) }}
-                                {{ $subSize->createdBy->username }}</td>
+                             {{$subSize->createdBy->username}}</td>
                             <td class="border px-4 py-2 align-middle text-center">
                                 {{ date('d/m/Y h:i A', strtotime($subSize->updated_at)) }}
-                                {{ $subSize->updatedBy->username }}
-                            </td>
-                            </td>
+                                {{$subSize->updatedBy->username}}
+                               </td>
+                               </td>
                             <td class="border px-4 py-2 align-middle text-center">
                                 <button class="text-blue-500 hover:underline"
                                     onclick="openEditModal('{{ $subSize->id }}', '{{ $subSize->name }}')">
@@ -43,7 +42,7 @@
             </tbody>
         </table>
     </div>
-    @if(Auth::user()->hasPermission('edit-subsize'))
+
     <div id="editModal" class="modal fixed top-20 left-1/2 transform -translate-x-1/2 z-50" style="display: none;">
         <div class="modal-content p-4 mt-20 bg-white shadow-md rounded-lg" style="width: 400px;">
             <span class="close font-bold mt-2 mr-2 cursor-pointer" onclick="closeEditModal()">&times;</span>
@@ -62,7 +61,6 @@
             </form>
         </div>
     </div>
-    @endif
 
     <script>
         function openEditModal(id, name) {

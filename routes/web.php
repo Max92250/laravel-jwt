@@ -4,8 +4,6 @@ use App\Http\Controllers\web\AuthenticationController;
 use App\Http\Controllers\web\CategoryController;
 use App\Http\Controllers\web\CustomerController;
 use App\Http\Controllers\web\ImageController;
-use App\Http\Controllers\web\PermissionController;
-use App\Http\Controllers\web\RoleController;
 use App\Http\Controllers\web\ProductController;
 use App\Http\Controllers\web\ProfileController;
 use App\Http\Controllers\web\SizeController;
@@ -64,17 +62,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/category/products/image/{product_id}', [ImageController::class, 'store'])->name('imagecreate');
         Route::post('category/products/images', [ImageController::class, 'create'])->name('products.createWithImages');
         Route::get('/images/{id}', [ImageController::class, 'delete'])->name('images.delete');
-
-        //Permissions Route
-        Route::get('/role', [PermissionController::class, 'index'])->name('roles.index');
-        Route::get('/users/{userId}/permissions', [PermissionController::class, 'edit'])->name('roles.permissions');
-        Route::post('/roles/{roleId}/permissions/update', [PermissionController::class, 'updatePermissions'])->name('update.permissions');
-
-        //Role Route
-
-        Route::get('/users', [RoleController::class, 'index'])->name('role.index');
-        Route::get('/users/{userId}/edit-roles', [RoleController::class, 'editUserRoles'])->name('users.editRoles');
-        Route::put('/users/{userId}/update-roles', [RoleController::class, 'updateRoles'])->name('users.updateRoles');
 
     });
 

@@ -68,88 +68,78 @@ class ProductController extends Controller
 
     public function update(Request $request, $productId)
     {
+        $request->validate([
+            'name' => 'sometimes|required|string',
+            'description' => 'sometimes|required|string',
+            'categories' => 'sometimes|required|array',
+            'categories.*' => 'integer|exists:categories,id', // Updated validation for category IDs
+            'items' => 'sometimes|required|array',
+            'items.*.id' => 'sometimes|required|exists:items,id',
+            'items.*.price' => 'sometimes|required|numeric',
+            'items.*.quantity' => 'sometimes|required|numeric',
+            'items.*.size' => 'sometimes|required|string',
+            'items.*.color' => 'sometimes|required|string',
 
-        if (auth()->user()->hasPermission('update-product')) {
+        ]);
+        $categoryId = $request->input('categories', []);
 
-            $request->validate([
-                'name' => 'sometimes|required|string',
-                'description' => 'sometimes|required|string',
-                'categories' => 'sometimes|required|array',
-                'categories.*' => 'integer|exists:categories,id', // Updated validation for category IDs
-                'items' => 'sometimes|required|array',
-                'items.*.id' => 'sometimes|required|exists:items,id',
-                'items.*.price' => 'sometimes|required|numeric',
-                'items.*.quantity' => 'sometimes|required|numeric',
-                'items.*.size' => 'sometimes|required|string',
-                'items.*.color' => 'sometimes|required|string',
+        $user = Auth::user();
 
-            ]);
-            $categoryId = $request->input('categories', []);
+        $productData = [
+            'name' => $request->input('name'),
+            'description' => $request->input('description'),
 
-            $user = Auth::user();
+            'updated_by' => $user->id,
 
-            $productData = [
-                'name' => $request->input('name'),
-                'description' => $request->input('description'),
+        ];
+        $itemsData = $request->input('items', []);
 
-                'updated_by' => $user->id,
+        $result = $this->productService->updateProduct($productId, $productData, $itemsData, $categoryId);
 
-            ];
-            $itemsData = $request->input('items', []);
-
-            $result = $this->productService->updateProduct($productId, $productData, $itemsData, $categoryId);
-
-            if ($result['status'] === 'success') {
-                return back()->with('success', "updated sucessfully");
-            } else {
-                return back()->with('error', $result['message']);
-            }
+        if ($result['status'] === 'success') {
+            return back()->with('success', "updated sucessfully");
         } else {
-            abort(403);
+            return back()->with('error', $result['message']);
         }
     }
 
     public function edit($productId)
     {
-        if (auth()->user()->hasPermission('edit-product')) {
-
-            $product = Product::find($productId);
-            if (!$product) {
-                abort(404);
-            }
-            $skus = $product->items()->pluck('sku')->toArray();
-
-            $payload = [
-                'itemSkuNumbers' => $skus,
-            ];
-
-            $response = Http::withHeaders(['apiToken' => config('app.config.warehouse_api_token')])
-                ->post(config('app.config.warehouse_api_url'), $payload);
-
-            if ($response->successful()) {
-                $itemsData = $response->json()['result']['customerItems'] ?? [];
-                $product->items->each(function ($item) use ($itemsData) {
-                    $itemData = collect($itemsData)->firstWhere('itemSkuNumber', $item->sku);
-                    if ($itemData) {
-                        $item->quantity = $itemData['A2S'];
-                        $item->status = $itemData['status'] == 1 ? 'active' : 'inactive';
-                    } else {
-                        $item->quantity = 0;
-                        $item->status = 'inactive';
-                    }
-                    $item->save();
-                });
-
-            }
-
-            $customerId = auth()->user()->customer_id;
-            $categories = Category::where('customer_id', $customerId)->get();
-            $sizes = Size::where('customer_id', $customerId)->get();
-
-            return view('product.edit', compact('product', 'categories', 'sizes'));
-        } else {
-            abort(403);
+        $product = Product::find($productId);
+        if (!$product) {
+            abort(404);
         }
+        $skus = $product->items()->pluck('sku')->toArray();
+
+        $payload = [
+            'itemSkuNumbers' => $skus,
+        ];
+        $url = env('WAREHOUSE_API_URL');
+
+        $response = Http::withHeaders(['apiToken' => config('app.config.warehouse_api_token')])
+            ->post(config('app.config.warehouse_api_url'), $payload);
+
+        if ($response->successful()) {
+            $itemsData = $response->json()['result']['customerItems'] ?? [];
+            $product->items->each(function ($item) use ($itemsData) {
+                $itemData = collect($itemsData)->firstWhere('itemSkuNumber', $item->sku);
+                if ($itemData) {
+                    $item->quantity = $itemData['A2S'];
+                    $item->status = $itemData['status'] == 1 ? 'active' : 'inactive';
+                } else {
+                    $item->quantity = 0;
+                    $item->status = 'inactive';
+                }
+                $item->save();
+            });
+
+        }
+
+        $customerId = auth()->user()->customer_id;
+        $categories = Category::where('customer_id', $customerId)->get();
+        $sizes = Size::where('customer_id', $customerId)->get();
+
+        return view('product.edit', compact('product', 'categories', 'sizes'));
 
     }
 
@@ -206,17 +196,11 @@ class ProductController extends Controller
 
     public function create()
     {
-        if (auth()->user()->hasPermission('create-product')) {
+        $user = auth()->user();
+        $categories = Category::where('customer_id', $user->customer_id)->get();
+        $sizes = Size::where('customer_id', $user->customer_id)->get();
 
-            $user = auth()->user();
-            $categories = Category::where('customer_id', $user->customer_id)->get();
-            $sizes = Size::where('customer_id', $user->customer_id)->get();
-
-            return view('product.create_product', compact('categories', 'sizes')); // Pass both categories and sizes to the view
-
-        } else {
-            abort(403);
-        }
+        return view('product.create_product', compact('categories', 'sizes')); // Pass both categories and sizes to the view
     }
 
 }
