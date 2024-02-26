@@ -3,24 +3,16 @@
 namespace App\Http\Controllers\web;
 
 use App\Http\Controllers\Controller;
-use App\Models\Category;
-use App\Models\Customer;
 use App\Models\Image;
-use App\Mail\TestMail;
-use App\Jobs\SendTestMail;
 use App\Models\Product;
-use App\Models\Size;
 use App\Models\User;
 use App\Services\ProductService;
-use DB;
-use Illuminate\Support\Facades\Mail;
-
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class ImageController extends Controller
 {
-    
+
     protected $productService;
 
     public function __construct(ProductService $productService)
@@ -55,12 +47,16 @@ class ImageController extends Controller
 
     public function show($product_id)
     {
-        $product = Product::findOrFail($product_id);
+        if (auth()->user()->hasPermission('access-image')) {
+            $product = Product::findOrFail($product_id);
 
-        // Filter images based on product ID
-        $images = $product->images->where('product_id', $product->id)->where('status', 1);
+            // Filter images based on product ID
+            $images = $product->images->where('product_id', $product->id)->where('status', 1);
 
-        return view('product.images1', compact('images'));
+            return view('product.images1', compact('product', 'images'));
+        } else {
+            abort(403);
+        }
     }
 
     public function update(Request $request, $productId)
@@ -97,19 +93,22 @@ class ImageController extends Controller
     {
         try {
             // Soft delete the image by updating the status to 0
-            DB::table('images')
-                ->where('id', $id)
-                ->update(['status' => '0']);
+            $image = Image::find($id);
 
+            // Check if the image exists
+            if ($image) {
+                // Update the status of the image
+                $image->status = '0';
+                $image->save();
+            }
             // Redirect back with a success message
             return redirect()->back()->with('success', 'Image has been soft deleted successfully.');
         } catch (\Exception $e) {
             // Log the error
             dd($e);
-
             // Redirect back with an error message
             return redirect()->back()->with('error', 'Failed to soft delete the image.');
         }
     }
-   
+
 }

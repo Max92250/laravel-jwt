@@ -3,7 +3,9 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\Role;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -26,6 +28,10 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->type === 'admin';
     }
+    public function isUser()
+    {
+        return $this->type === 'user';
+    }
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
@@ -34,6 +40,33 @@ class User extends Authenticatable implements JWTSubject
     public function hasRole($role)
     {
         return $this->type === $role;
+    }
+    public function roles(): BelongsToMany
+    {
+        return $this->belongsToMany(Role::class);
+    }
+    public function Role(string $roleName): bool
+    {
+        return $this->roles()->where('name', $roleName)->exists();
+    }
+
+    public function assignRole(Role $role): void
+    {
+        $this->roles()->syncWithoutDetaching($role);
+    }
+
+    public function removeRole(Role $role): void
+    {
+        $this->roles()->detach($role);
+    }
+
+    public function hasPermission(string $permissionName): bool
+    {
+        // Retrieve all roles associated with the user
+        $roles = $this->roles()->with('permissions')->get();
+
+        // Flatten the permissions and check if the specified permission exists
+        return $roles->pluck('permissions')->flatten()->pluck('name')->contains($permissionName);
     }
     public function updator()
     {
