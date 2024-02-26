@@ -96,7 +96,6 @@ public function createProductWithItems(array $productData, array $itemsData, arr
                 $product->update($productData);
                 
          
-
                 if (!empty($categoryId)) {
                     
                     $product->categories()->sync($categoryId);
