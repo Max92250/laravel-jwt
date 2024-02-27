@@ -3,11 +3,14 @@
 use App\Http\Controllers\web\AuthenticationController;
 use App\Http\Controllers\web\CategoryController;
 use App\Http\Controllers\web\CustomerController;
+use App\Http\Controllers\Frontend\MemberLoginController;
+use App\Http\Controllers\Frontend\MemberDashboardController;
 use App\Http\Controllers\web\ImageController;
 use App\Http\Controllers\web\ProductController;
 use App\Http\Controllers\web\ProfileController;
 use App\Http\Controllers\web\SizeController;
 use App\Http\Controllers\web\UserController;
+use App\Http\Controllers\web\MemberSignupController;
 use Illuminate\Support\Facades\Route;
 
 // Authentication Routes
@@ -63,6 +66,21 @@ Route::middleware(['auth'])->group(function () {
         Route::post('category/products/images', [ImageController::class, 'create'])->name('products.createWithImages');
         Route::get('/images/{id}', [ImageController::class, 'delete'])->name('images.delete');
 
+        //Mmember signup
+        Route::get('/signup', [MemberSignupController::class, 'showSignupForm'])->name('signup');
+        Route::post('/signup', [MemberSignupController::class, 'signup'])->name('member.signup');
+
     });
+
+});
+
+
+Route::get('/member/login', [MemberLoginController::class, 'showLoginForm'])->name('member.login');
+Route::post('/member/login', [MemberLoginController::class, 'login'])->name('login.member');
+Route::post('/member/logout', [MemberLoginController::class, 'logout'])->name('member.logout');
+
+Route::middleware(['auth.member'])->group(function () {
+    Route::get('/member/dashboard', [MemberDashboardController::class, 'index'])->name('member.dashboard');
+    Route::get('/products/{category}', [MemberDashboardController::class,'productsbycategory'])->name('products.by.category');
 
 });
