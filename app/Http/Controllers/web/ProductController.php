@@ -23,7 +23,9 @@ class ProductController extends Controller
     }
 
     public function stores(Request $request)
+    
     {
+        if (auth()->user()->hasPermission('create-product')) {
         try {
             $validatedData = $request->validate([
                 'name' => 'required|string',
@@ -64,12 +66,15 @@ class ProductController extends Controller
         } catch (\Exception $e) {
             return back()->withInput()->withErrors(['error' => 'Failed to create product. Please try again.']);
         }
+    }else{
+        abort(403);
+    }
     }
 
     public function update(Request $request, $productId)
     {
 
-        if (auth()->user()->hasPermission('update-product')) {
+        if (auth()->user()->can('update-product')) {
 
             $request->validate([
                 'name' => 'sometimes|required|string',
