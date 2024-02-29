@@ -75,6 +75,19 @@
                     @endif
     
                 </div>
+                <div class="relative mr-4">
+                    @if (auth()->user()->Role('admin'))
+                        <a class="text-black hover:text-gray-300 focus:outline-none" href="{{route('role.index')}}">Permission</a>
+                    @endif
+    
+                </div>
+
+                <div class="relative mr-4">
+                    @if (auth()->user()->Role('admin'))
+                        <a class="text-black hover:text-gray-300 focus:outline-none" href="{{route('roles.index')}}">Roles</a>
+                    @endif
+
+                </div>
 
             </div>
         

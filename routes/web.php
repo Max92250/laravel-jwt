@@ -1,19 +1,19 @@
 <?php
 
+use App\Http\Controllers\Frontend\MemberDashboardController;
+use App\Http\Controllers\Frontend\MemberLoginController;
+use App\Http\Controllers\Frontend\MemberProductController;
 use App\Http\Controllers\web\AuthenticationController;
 use App\Http\Controllers\web\CategoryController;
 use App\Http\Controllers\web\CustomerController;
-use App\Http\Controllers\Frontend\MemberLoginController;
-use App\Http\Controllers\Frontend\MemberDashboardController;
-use App\Http\Controllers\Frontend\MemberProductController;
 use App\Http\Controllers\web\ImageController;
+use App\Http\Controllers\web\MemberSignupController;
 use App\Http\Controllers\web\PermissionController;
-use App\Http\Controllers\web\RoleController;
 use App\Http\Controllers\web\ProductController;
 use App\Http\Controllers\web\ProfileController;
+use App\Http\Controllers\web\RoleController;
 use App\Http\Controllers\web\SizeController;
 use App\Http\Controllers\web\UserController;
-use App\Http\Controllers\web\MemberSignupController;
 use Illuminate\Support\Facades\Route;
 
 // Authentication Routes
@@ -68,6 +68,16 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/category/products/image/{product_id}', [ImageController::class, 'store'])->name('imagecreate');
         Route::post('category/products/images', [ImageController::class, 'create'])->name('products.createWithImages');
         Route::get('/images/{id}', [ImageController::class, 'delete'])->name('images.delete');
+        //Permissions Route
+        Route::get('/role', [PermissionController::class, 'index'])->name('roles.index');
+        Route::get('/users/{userId}/permissions', [PermissionController::class, 'edit'])->name('roles.permissions');
+        Route::post('/roles/{roleId}/permissions/update', [PermissionController::class, 'updatePermissions'])->name('update.permissions');
+
+        //Role Route
+
+        Route::get('/users', [RoleController::class, 'index'])->name('role.index');
+        Route::get('/users/{userId}/edit-roles', [RoleController::class, 'editUserRoles'])->name('users.editRoles');
+        Route::put('/users/{userId}/update-roles', [RoleController::class, 'updateRoles'])->name('users.updateRoles');
 
         //Mmember signup
         Route::get('/signup', [MemberSignupController::class, 'showSignupForm'])->name('signup');
@@ -77,10 +87,7 @@ Route::middleware(['auth'])->group(function () {
 
 });
 
-
-
-//member login 
-
+//member login
 
 Route::get('/member/login', [MemberLoginController::class, 'showLoginForm'])->name('member.login');
 Route::post('/member/login', [MemberLoginController::class, 'login'])->name('login.member');
@@ -88,7 +95,7 @@ Route::post('/member/logout', [MemberLoginController::class, 'logout'])->name('m
 
 Route::middleware(['auth.member'])->group(function () {
     Route::get('/member/dashboard', [MemberDashboardController::class, 'index'])->name('member.dashboard');
-    Route::get('/categroy/{category}/product', [MemberDashboardController::class,'productsbycategory'])->name('products.by.category');
+    Route::get('/categroy/{category}/product', [MemberDashboardController::class, 'productsbycategory'])->name('products.by.category');
     Route::get('/product/{id}/details', [MemberProductController::class, 'show'])->name('product.show');
- 
+
 });
