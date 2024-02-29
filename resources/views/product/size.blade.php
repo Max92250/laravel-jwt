@@ -53,8 +53,8 @@
                         <select
                             class="block w-3/4 bg-gray-50 border border-gray-300 mt-4 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                             id="status" name="status">
-                            <option value="active">Active</option>
-                            <option value="inactive">Inactive</option>
+                            <option value="1">Active</option>
+                            <option value="0">Inactive</option>
                         </select>
                     </div>
                     <button type="submit"
@@ -95,7 +95,8 @@
                                     <a href="{{ route('sizes.subsizes', ['id' => $size->id]) }}">{{ $sn++ }}</a>
                                 </td>
                                 <td class="border px-4 py-2 text-center align-middle text-center">{{ $size->name }}</td>
-                                <td class="border px-4 py-2 text-center align-middle text-center">{{ $size->status }}</td>
+                                <td class="border px-4 py-2 text-center align-middle text-center">
+                                    {{ $size->status == 1 ? 'Active' : 'Inactive' }}</td>
                                 <td class="border px-4 py-2 text-center align-middle text-center">
                                     {{ \Carbon\Carbon::parse($size->created_at)->setTimezone('Asia/Kathmandu')->format('d/m/Y h:i A') }}
                                     {{ $size->createdBy->username ?? '' }}
@@ -115,26 +116,26 @@
                 </tbody>
             </table>
         </div>
-        @if(Auth::user()->hasPermission('edit-size'))
-        <div id="editModal" class="modal fixed top-20 left-1/2 transform -translate-x-1/2 z-50" style="display: none;">
-            <div class="modal-content p-4 mt-20 bg-white shadow-md rounded-lg" style="width: 400px;">
-                <span class="close font-bold mt-2 mr-2 cursor-pointer" onclick="closeEditModal()">&times;</span>
-                <h2 class="text-center font-bold mb-4">Edit Size</h2>
-                <form id="editForm" method="POST" action="">
-                    @csrf
-                    @method('PUT')
-                    <div class="mb-4">
-                        <input type="text" id="sizeName" name="sizeName"
-                            class="block w-full p-2 border border-gray-300 rounded-md">
-                    </div>
-                    <button type="submit"
-                        class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded shadow">
-                        Update Size
-                    </button>
-                </form>
+        @if (Auth::user()->hasPermission('edit-size'))
+            <div id="editModal" class="modal fixed top-20 left-1/2 transform -translate-x-1/2 z-50" style="display: none;">
+                <div class="modal-content p-4 mt-20 bg-white shadow-md rounded-lg" style="width: 400px;">
+                    <span class="close font-bold mt-2 mr-2 cursor-pointer" onclick="closeEditModal()">&times;</span>
+                    <h2 class="text-center font-bold mb-4">Edit Size</h2>
+                    <form id="editForm" method="POST" action="">
+                        @csrf
+                        @method('PUT')
+                        <div class="mb-4">
+                            <input type="text" id="sizeName" name="sizeName"
+                                class="block w-full p-2 border border-gray-300 rounded-md">
+                        </div>
+                        <button type="submit"
+                            class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded shadow">
+                            Update Size
+                        </button>
+                    </form>
+                </div>
             </div>
-        </div>
-@endif
+        @endif
         <script>
             function openEditModal(id, name) {
                 var modal = document.getElementById("editModal");

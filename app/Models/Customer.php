@@ -37,4 +37,9 @@ class Customer extends Model
     {
         return $this->hasMany(Category::class,'customer_id','id');
     }
+    public function credit()
+    {
+        return $this->hasOne(Credit::class, 'customer_id', 'id');
+    }
+  
 }

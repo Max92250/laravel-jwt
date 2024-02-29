@@ -103,6 +103,7 @@ class CustomerController extends Controller
         $validator = $request->validate([
             'name' => 'sometimes|required|string',
             'identifier' => 'sometimes|required|string|unique:customers,identifier,' . $id, 
+            'status' => 'sometimes|required|in:0,1', // Assuming status can be either 0 or 1
         ]);
 
 
@@ -113,6 +114,11 @@ class CustomerController extends Controller
         if ($request->filled('identifier')) {
             $customer->identifier = $request->input('identifier');
         }
+
+        if ($request->filled('status')) {
+            $customer->status = $request->input('status');
+        }
+    
         // Update other fields as needed
         $customer->updated_by = $request->user()->id;
 

@@ -1,7 +1,4 @@
-@extends('member.navbar')
-
-@section('section')
-<body class="bg-gray-100">
+<x-app >
     <div class="container mx-auto pt-5">
         <div class="text-center mb-4">
             <h2 class="text-2xl font-bold">Laptops</h2>
@@ -58,5 +55,4 @@
             <!-- Repeat similar structure for other category items -->
         </div>
     </div>
-</body>
-@endsection
+</x-app>

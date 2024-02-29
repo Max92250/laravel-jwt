@@ -23,4 +23,9 @@ class Member extends AuthenticatableUser implements Authenticatable
     {
         return $this->belongsTo(Customer::class,'customer_id','id');
     }
+
+    public function credits()
+    {
+        return $this->belongsToMany(Credit::class);
+    }
 }

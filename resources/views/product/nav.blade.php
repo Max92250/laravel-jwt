@@ -69,10 +69,15 @@
                     @endif
 
                 </div>
-
+                <div class="relative mr-4">
+                    @if (auth()->user()->Role('admin'))
+                        <a class="text-black hover:text-gray-300 focus:outline-none" href="{{route('signup')}}">Signup</a>
+                    @endif
+    
+                </div>
 
             </div>
-
+        
             <!-- User Profile and Logout -->
             <div class="flex items-center">
                 @if (Auth::user()->isAdmin())
