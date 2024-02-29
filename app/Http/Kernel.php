@@ -55,6 +55,7 @@ class Kernel extends HttpKernel
         'jwt.refresh' => 'Tymon\JWTAuth\Middleware\RefreshToken',
         'cors'=>\App\Http\Middleware\CorsMiddleware::class,
         'auth:sanctum' => \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+        'auth.member' => \App\Http\Middleware\AuthenticateMember::class,
     
         
     ];

@@ -80,7 +80,7 @@
 
                                 </td>
                                 <td class="border px-4 py-4">{{ $customer->identifier }}</td>
-                                <td class="border px-4 py-4">{{ $customer->status }}</td>
+                                <td class="border px-4 py-4">{{ $customer->status == '1' ? 'Active' : 'Inactive' }}</td>
                                 <td class="border px-4 py-4">
                                     {{ $customer->created_at->setTimezone('Asia/Kathmandu')->format('d/m/Y h:i A') }}
                                     {{ $customer->createdBy->username ?? '' }}
@@ -92,7 +92,7 @@
                                 <td class="border px-4 py-2 text-center align-middle text-center">
                                     <button class="text-blue-500 hover:underline"
                                         onclick="openEditModal('{{ $customer->id }}', 
-                                   '{{ $customer->name }}', '{{ $customer->identifier }}',)">
+                                   '{{ $customer->name }}', '{{ $customer->identifier }}','{{$customer->status}}')">
                                         <i class="fas fa-edit cursor-pointer"></i> <!-- Edit Icon -->
                                     </button>
                                 </td>
@@ -121,6 +121,13 @@
                             @enderror
 
                         </div>
+                        <div class="mb-4">
+                            <label for="userStatus" class="block text-sm font-medium text-gray-700">Status</label>
+                            <select name="status" id="userStatus" class="block w-full p-2 border border-gray-300 rounded-md">
+                                <option value="0">Inactive</option>
+                                <option value="1">Active</option>
+                            </select>
+                        </div>
                         <button type="submit"
                             class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded shadow">
                             Update
@@ -133,7 +140,7 @@
                 function
                 openEditModal(id,
                     name,
-                    identifier) {
+                    identifier,status) {
                     var
                         modal =
                         document.getElementById("editModal");
@@ -151,10 +158,13 @@
                     var
                         identifierInput =
                         document.getElementById("identifierName");
+                        var statusInput = document.getElementById("userStatus");
+
                     sizeNameInput.value =
                         name;
                     identifierInput.value =
                         identifier;
+                        statusInput.value = status;
                     modal.style.display =
                         "block";
 

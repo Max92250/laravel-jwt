@@ -93,7 +93,7 @@ class SizeController extends Controller
         $request->validate([
             'name' => 'required|string',
             'parent_id' => 'nullable|exists:sizes,id',
-            'status' => 'nullable|in:active,inactive',
+            'status' => 'required|in:0,1', // Assuming status can be either 0 or 1
 
         ]);
 

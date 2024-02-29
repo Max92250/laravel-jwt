@@ -23,7 +23,8 @@
                     <td class="border px-4 py-4">{{ $serialNumber++ }}</td>
                     <td class="border px-4 py-4">{{ ucfirst($userData->username) }}</td>
                     <td class="border px-4 py-4">{{ $userData->email }}</td>
-                    <td class="border px-4 py-4">{{ $userData->active == 1 ? 'Active' : 'Inactive' }}</td>
+                    <td class="border px-4 py-4">{{ $userData->status == '1' ? 'Active' : 'Inactive' }}</td>
+
                     <td class="border px-4 py-4">{{ $userData->type }}</td>
                     <td class="border px-4 py-4">{{ \Carbon\Carbon::parse($userData->created_at)->setTimezone('Asia/Kathmandu')->format('d/m/Y h:i A') }}</td>
                     <td class="border px-4 py-4">{{ \Carbon\Carbon::parse($userData->updated_at)->setTimezone('Asia/Kathmandu')->format('d/m/Y h:i A') }}</td>
