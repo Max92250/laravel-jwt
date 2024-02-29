@@ -71,20 +71,13 @@
                 </div>
                 <div class="relative mr-4">
                     @if (auth()->user()->Role('admin'))
-                        <a class="text-black hover:text-gray-300 focus:outline-none" href="{{route('roles.index')}}">Roles</a>
+                        <a class="text-black hover:text-gray-300 focus:outline-none" href="{{route('signup')}}">Signup</a>
                     @endif
-
+    
                 </div>
-                <div class="relative mr-4">
-                    @if (auth()->user()->Role('admin'))
-                        <a href="{{route('role.index')}}" class="text-black hover:text-gray-300 focus:outline-none" href="">Users</a>
-                    @endif
-
-                </div>
-
 
             </div>
-
+        
             <!-- User Profile and Logout -->
             <div class="flex items-center">
                 @if (Auth::user()->isAdmin())

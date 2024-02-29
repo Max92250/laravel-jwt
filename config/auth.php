@@ -44,6 +44,10 @@ return [
             'driver' => 'jwt',
             'provider' => 'users',
         ],
+        'members' => [
+            'driver' => 'session', // You can choose the appropriate driver based on your authentication mechanism
+            'provider' => 'members',
+        ],
     ],
 
     /*
@@ -67,6 +71,10 @@ return [
         'users' => [
             'driver' => 'eloquent',
             'model' => App\Models\User::class,
+        ],
+        'members' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Member::class, // Make sure to replace this with the correct model class for members
         ],
 
         // 'users' => [

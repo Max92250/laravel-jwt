@@ -54,8 +54,6 @@ public function createProductWithItems(array $productData, array $itemsData, arr
     }
 }
 
-
-
     public function createProductWithImages(int $productId, array $imageFiles)
     {
         try {
