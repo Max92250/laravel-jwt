@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
-
+use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Member;
+use Illuminate\Support\Facades\Session;
 class MemberLoginController extends Controller
 {
     public function showLoginForm()
@@ -25,6 +27,8 @@ class MemberLoginController extends Controller
 
         if (Auth::guard('members')->attempt($credentials)) {
             // Authentication successful, redirect to member dashboard
+            $member = Auth::guard('members')->user();
+            Session::put('username', $member->username);
             return redirect()->route('member.dashboard');
         }
 
@@ -35,7 +39,7 @@ class MemberLoginController extends Controller
     public function logout()
     {
         // Logout the member
-        Auth::guard('member')->logout();
+        Auth::guard('members')->logout();
 
         // Redirect to the login page
         return redirect()->route('member.login');

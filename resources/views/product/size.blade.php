@@ -106,7 +106,7 @@
                                     {{ $size->updatedBy->username ?? '' }}</td>
                                 <td class="border px-4 py-2 text-center align-middle text-center">
                                     <button class="text-blue-500 hover:underline"
-                                        onclick="openEditModal('{{ $size->id }}', '{{ $size->name }}')">
+                                        onclick="openEditModal('{{ $size->id }}', '{{ $size->name }}','{{$size->status}}')">
                                         <i class="fas fa-edit cursor-pointer"></i> <!-- Edit Icon -->
                                     </button>
                                 </td>
@@ -116,7 +116,7 @@
                 </tbody>
             </table>
         </div>
-        @if (Auth::user()->hasPermission('edit-size'))
+        @if (Auth::user()->hasPermission('size-edit'))
             <div id="editModal" class="modal fixed top-20 left-1/2 transform -translate-x-1/2 z-50" style="display: none;">
                 <div class="modal-content p-4 mt-20 bg-white shadow-md rounded-lg" style="width: 400px;">
                     <span class="close font-bold mt-2 mr-2 cursor-pointer" onclick="closeEditModal()">&times;</span>
@@ -128,6 +128,13 @@
                             <input type="text" id="sizeName" name="sizeName"
                                 class="block w-full p-2 border border-gray-300 rounded-md">
                         </div>
+                        <div class="mb-4">
+                            <label for="userStatus" class="block text-sm font-medium text-gray-700">Status</label>
+                            <select name="status" id="userStatus" class="block w-full p-2 border border-gray-300 rounded-md">
+                                <option value="1">Active</option>
+                                <option value="0">Inactive</option>
+                            </select>
+                        </div>
                         <button type="submit"
                             class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded shadow">
                             Update Size
@@ -137,11 +144,13 @@
             </div>
         @endif
         <script>
-            function openEditModal(id, name) {
+            function openEditModal(id, name,status) {
                 var modal = document.getElementById("editModal");
                 var form = document.getElementById("editForm");
                 form.action = "{{ url('sizes') }}" + "/" + id + "/update";
                 var sizeNameInput = document.getElementById("sizeName");
+                var statusInput = document.getElementById("userStatus");
+            statusInput.value = status;
                 sizeNameInput.value = name;
                 modal.style.display = "block";
 

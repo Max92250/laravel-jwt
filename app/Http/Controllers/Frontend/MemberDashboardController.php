@@ -11,8 +11,6 @@ class MemberDashboardController extends Controller
     public function index()
     {
         
-        
-
 
         return view('components.member.dashboard');
     }

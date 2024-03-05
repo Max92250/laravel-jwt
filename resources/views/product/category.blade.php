@@ -102,7 +102,7 @@
                     </div>
                     <div class="mb-4">
                         <label for="userStatus" class="block text-sm font-medium text-gray-700">Status</label>
-                        <select name="status" id="userStatus" class="block w-full p-2 border border-gray-300 rounded-md">
+                        <select name="status" id="userStatus" class="block w-full p-2 border border-gray-300 rounded-md"> 
                             <option value="0">Active</option>
                             <option value="1">Inactive</option>
                         </select>

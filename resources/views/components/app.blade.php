@@ -6,10 +6,13 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <!-- Scripts -->
         @vite('resources/css/app.css')
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+        @livewireStyles
     </head>
     <body >
       
         <x-test-component />
+      
             <!-- Page Heading -->
             @if (isset($header))
                 <header class="bg-white dark:bg-gray-800 shadow">
@@ -23,6 +26,6 @@
             <main>
                 {{ $slot }}
             </main>
-        
+          
     </body>
 </html>

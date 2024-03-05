@@ -12,8 +12,8 @@ class MemberProductController extends Controller
     {
         $member = auth()->guard('members')->user();
         $amounts = $member->credits()->pluck('amount');
-
-    
+       
+        
         $products = Product::where('id', $id)
             ->with(['items' => function ($query) {
                 $query->where('status', 'active');

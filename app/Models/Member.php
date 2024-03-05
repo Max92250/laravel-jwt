@@ -1,7 +1,7 @@
 <?php
 namespace App\Models;
 
-
+use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as AuthenticatableUser;
@@ -9,7 +9,7 @@ use Illuminate\Notifications\Notifiable;
 
 class Member extends AuthenticatableUser implements Authenticatable
 {
-    use HasFactory,  Notifiable;
+    use HasApiTokens, HasFactory,  Notifiable;
 
     protected $fillable = [
         'email',
@@ -28,4 +28,30 @@ class Member extends AuthenticatableUser implements Authenticatable
     {
         return $this->belongsToMany(Credit::class);
     }
+   
+    public function cart()
+    {
+        return $this->hasOne(Cart::class);
+    }
+
+    public function checkoutDetails()
+    {
+        return $this->hasMany(CheckoutDetail::class);
+    }
+
+    public function shipments()
+    {
+        return $this->hasMany(Shipment::class);
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
 }

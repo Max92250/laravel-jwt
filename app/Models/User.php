@@ -36,7 +36,7 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->belongsTo(User::class, 'created_by');
     }
-
+  
     public function hasRole($role)
     {
         return $this->type === $role;

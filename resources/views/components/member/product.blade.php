@@ -5,7 +5,7 @@
 
              
                     @foreach ($products as $product)
-                        <div class="p-4 border h-100">
+                        <div class="p-4 border h-100"  style="box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;">
                             <div class="p-4 h-60 flex flex-col justify-center items-center">
                                 <a href="{{ route('product.show', $product->id) }}">
                                     @foreach ($product->images as $index => $image)

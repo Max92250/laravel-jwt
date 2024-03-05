@@ -17,5 +17,6 @@ class VerifyCsrfToken extends Middleware
         '/products/*/update',
         '/products/*/update-images',
         '/customers'
+        
     ];
 }

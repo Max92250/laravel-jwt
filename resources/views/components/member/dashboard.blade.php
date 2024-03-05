@@ -1,8 +1,10 @@
 <x-app >
+    
     <div class="container mx-auto pt-5">
         <div class="text-center mb-4">
             <h2 class="text-2xl font-bold">Laptops</h2>
         </div>
+      
         <div class="grid grid-cols-1  sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-4 px-4">
             <!-- Category items for Trendy Womens -->
             <div class="p-4 border h-60 rounded-lg bg-white">
@@ -19,8 +21,7 @@
                 </a>
                 <h5 class="text-lg font-semibold mb-2">Laptops</h5>
             </div>
-          
-          
+       
             <div class="p-4 border h-60 rounded-lg bg-white">
                 <p class="text-right">4 Products</p>
                 <a href="">
@@ -55,4 +56,5 @@
             <!-- Repeat similar structure for other category items -->
         </div>
     </div>
+   
 </x-app>

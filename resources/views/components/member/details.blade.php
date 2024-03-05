@@ -15,8 +15,8 @@
                 <div id="product-carousel" class="carousel">
                     @foreach ($products as $product)
                         @foreach ($product->images as $image)
-                            <div class="carousel-item w-80 h-80 ml-40">
-                                <img src="{{ asset('images/' . $image->image_path) }}" class="w-full mb-4"
+                            <div class="carousel-item  ml-40">
+                                <img src="{{ asset('images/' . $image->image_path) }}" class="w-80 h-80 mb-4"
                                     alt="Product Image">
                             </div>
                         @endforeach
@@ -24,12 +24,12 @@
                 </div>
 
                 <div class="ml-20 pl-20 mt-4  w-3/4 ">
-                    <div class="grid grid-cols-4">
+                    <div class="grid grid-cols-4 ">
                         @foreach ($products as $product)
                             @foreach ($product->images as $key => $image)
-                                <div class="thumbnail w-20 h-20">
+                                <div class="thumbnail ">
                                     <img src="{{ asset('images/' . $image->image_path) }}"
-                                        class="w-full rounded-lg shadow-lg cursor-pointer" alt="Product Thumbnail"
+                                        class="w-20 h-20 rounded-lg shadow-lg cursor-pointer" alt="Product Thumbnail"
                                         onclick="currentSlide({{ $key + 1 }})">
                                 </div>
                             @endforeach
@@ -77,7 +77,7 @@
                             class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow"
                             id="buy-button">Buy now</button>
                         <button
-                            class="bg-white ml-4 hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow ml-2">Add
+                            class="bg-white ml-4 hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow ml-2" id="add-to-cart">Add
                             to cart</button>
                     </div>
 
@@ -133,9 +133,11 @@
             colorCircle.style.backgroundColor = color;
 
             // Check if any item price is greater than or equal to the amount
-            if (parseFloat(price) >= amount) {
+            if (parseFloat(price) > amount) {
+                console.log(false);
                 document.getElementById('buy-button').style.display = 'none';
             } else {
+                console.log(true);
                 document.getElementById('buy-button').style.display = 'block';
             }
         }
@@ -166,6 +168,39 @@
         window.addEventListener('load', function() {
             setInitialColorAndPrice();
         });
+
+        document.getElementById('add-to-cart').addEventListener('click', function() {
+        // Get the selected item ID from the select element
+        var itemId = document.getElementById('product-size-select').value;
+
+        // Send an AJAX request to the backend controller
+        axios.post('/add-to-cart', {
+            item_id: itemId
+        })
+        .then(function(response) {
+            // Handle success response
+            console.log(response);
+            updateCartCounter();
+
+        })
+        .catch(function(error) {
+            // Handle error response
+            console.error(error);
+        });
+    });
+
+    
+    function updateCartCounter() {
+        axios.post('/update-cart-counter')
+            .then(function(response) {
+                var itemCount = response.data.itemCount;
+                document.getElementById('cart-counter').innerText = itemCount;
+            })
+            .catch(function(error) {
+                console.error('Error updating cart counter:',error);
+            });
+    }
+  
     </script>
 
 

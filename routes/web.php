@@ -1,17 +1,21 @@
 <?php
 
+use App\Http\Controllers\Frontend\CartController;
+use App\Http\Controllers\Frontend\CheckoutController;
+use App\Http\Controllers\Frontend\ShipmentController;
+use App\Http\Controllers\Frontend\OrderController;
+use App\Http\Controllers\Frontend\MemberDashboardController;
+use App\Http\Controllers\Frontend\MemberLoginController;
+use App\Http\Controllers\Frontend\MemberProductController;
 use App\Http\Controllers\web\AuthenticationController;
 use App\Http\Controllers\web\CategoryController;
 use App\Http\Controllers\web\CustomerController;
-use App\Http\Controllers\Frontend\MemberLoginController;
-use App\Http\Controllers\Frontend\MemberDashboardController;
-use App\Http\Controllers\Frontend\MemberProductController;
 use App\Http\Controllers\web\ImageController;
+use App\Http\Controllers\web\MemberSignupController;
 use App\Http\Controllers\web\ProductController;
 use App\Http\Controllers\web\ProfileController;
 use App\Http\Controllers\web\SizeController;
 use App\Http\Controllers\web\UserController;
-use App\Http\Controllers\web\MemberSignupController;
 use Illuminate\Support\Facades\Route;
 
 // Authentication Routes
@@ -75,18 +79,28 @@ Route::middleware(['auth'])->group(function () {
 
 });
 
-
-
-//member login 
-
+//member login
 
 Route::get('/member/login', [MemberLoginController::class, 'showLoginForm'])->name('member.login');
 Route::post('/member/login', [MemberLoginController::class, 'login'])->name('login.member');
-Route::post('/member/logout', [MemberLoginController::class, 'logout'])->name('member.logout');
 
 Route::middleware(['auth.member'])->group(function () {
     Route::get('/member/dashboard', [MemberDashboardController::class, 'index'])->name('member.dashboard');
-    Route::get('/categroy/{category}/product', [MemberDashboardController::class,'productsbycategory'])->name('products.by.category');
+    Route::get('/categroy/{category}/product', [MemberDashboardController::class, 'productsbycategory'])->name('products.by.category');
     Route::get('/product/{id}/details', [MemberProductController::class, 'show'])->name('product.show');
- 
+    Route::post('/add-to-cart', [CartController::class, 'addItemToCart'])->name('add-to-cart');
+    Route::get('/cart', [CartController::class, 'show'])->name('cart.show');
+    Route::post('/update_quantity', [CartController::class, 'updateQuantity']);
+    Route::post('/delete_item', [CartController::class, 'deleteItem']);
+    Route::post('/update-cart-counter', [CartController::class, 'updateCartCounter'])->name('update.cart.counter');
+    // routes/web.php
+    Route::get('/checkout/cart/{cart_id}', [CheckoutController::class, 'show'])->name('checkout.details');
+    Route::post('/shipmentaddress', [ShipmentController::class, 'store'])->name('shipment.store');
+    Route::get('/shipmentaddress/{id}/delete', [ShipmentController::class, 'destroy'])->name('delete.shipment');
+    Route::post('/logout', [MemberLoginController::class, 'logout'])->name('member.logout');
+    Route::post('/place-order', [OrderController::class, 'placeOrder'])->name('place.order');
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+
+
 });
+

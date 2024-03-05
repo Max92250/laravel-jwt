@@ -15,10 +15,13 @@ class Item extends Model
     {
         return $this->belongsTo(Product::class);
     }
+    
     public function size()
     {
         return $this->belongsTo(Size::class,'size_id','id');
     }
+
+    
 
    
 }
