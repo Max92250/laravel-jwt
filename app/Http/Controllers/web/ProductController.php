@@ -64,6 +64,7 @@ class ProductController extends Controller
                 return view('product.error', ['message' => $result['message']]);
             }
         } catch (\Exception $e) {
+            dd($e);
             return back()->withInput()->withErrors(['error' => 'Failed to create product. Please try again.']);
         }
     }else{
@@ -74,7 +75,7 @@ class ProductController extends Controller
     public function update(Request $request, $productId)
     {
 
-        if (auth()->user()->can('update-product')) {
+        if (auth()->user()->hasPermission('update-product')) {
 
             $request->validate([
                 'name' => 'sometimes|required|string',

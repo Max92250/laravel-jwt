@@ -53,5 +53,24 @@ class Member extends AuthenticatableUser implements Authenticatable
     {
         return $this->hasMany(Order::class);
     }
+    
+    
+    public function creditLogs()
+    {
+        return $this->hasMany(CreditLog::class);
+    }
+  /*  public function hasAccessToCategory($category)
+    {
+        // Get the ID of the category if it's an object
+        $categoryId = $category instanceof Category ? $category->id : $category;
+    
+        // Retrieve the category IDs associated with the member's customer
+        $customerCategoryIds = $this->customer->category()->pluck('id')->toArray();
+        
+        // Check if the specified category ID is among the associated category IDs
+        return in_array($categoryId, $customerCategoryIds);
+    }
+    */
+    
 
 }

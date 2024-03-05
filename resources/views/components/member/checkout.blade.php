@@ -114,7 +114,6 @@
             </div>
             <div class="p-4">
 
-                <h2 class="text-2xl font-semibold  mb-6">Select Payment Method</h2>
                 
                 @if(session('error'))
                 <div  class="bg-red-100 border mb-10 border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
@@ -122,63 +121,15 @@
                 </div>
             @endif
                 <form action="{{ route('place.order') }}" method="POST">
-                    @if (
-                        $errors->has('payment_method') ||
-                            $errors->has('card_number') ||
-                            $errors->has('expiration_date') ||
-                            $errors->has('cvv'))
-                        <!-- Display payment error message or handle it as needed -->
-                        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4"
-                            role="alert">
-
-                            <strong class="font-bold">Validation Error!</strong>
-                            <ul>
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
+                    
 
                     @csrf
-                    <div class="grid grid-cols-2">
-                        <div class="mb-4">
-                            <label for="payment_method" class="block text-sm font-medium text-gray-700">Payment
-                                Method</label>
-                            <select name="payment_method" id="payment_method"
-                                class=" block w-4/5 border border-gray-300 rounded-md h-10 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                <option value="credit_card">Credit Card</option>
-                                <option value="paypal">PayPal</option>
-                                <option value="debit_card">Debit Card</option>
+                   
 
-                            </select>
-
-                        </div>
-
-                        <div id="card_fields" class="">
-                            <div class="mb-4">
-                                <label for="card_number" class="block text-sm font-medium text-gray-700">Card
-                                    Number</label>
-                                <input type="text" name="card_number" id="card_number"
-                                    class="mt-4 block w-4/5 border border-gray-300 rounded-md h-10 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                            </div>
                             <input type="hidden" name="selected_shipment_id" id="selected_shipment_id">
                             <input type="hidden" name="selected_total_price" value="" id="total">
-                            <div class="mb-4">
-                                <label for="expiration_date"
-                                    class="block text-sm font-medium text-gray-700">Expiration
-                                    Date</label>
-                                <input type="date" name="expiration_date" id="expiration_date"
-                                    class="mt-4 block w-4/5 border border-gray-300 rounded-md h-10 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                            </div>
-                            <div class="mb-4">
-                                <label for="cvv" class="block text-sm font-medium text-gray-700">CVV</label>
-                                <input type="text" name="cvv" id="cvv"
-                                    class="mt-4 block w-4/5 border border-gray-300 rounded-md h-10 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                            </div>
-                        </div>
+                          
 
-                    </div>
                     <button type="submit"
                         class=" px-4 py-2 w-40 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600">Order</button>
 

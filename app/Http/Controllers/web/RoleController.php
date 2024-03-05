@@ -23,7 +23,7 @@ class RoleController extends Controller
     {
         // Retrieve the user and their roles
         $user = User::with('roles')->findOrFail($userId);
-
+    
         // Retrieve all roles from the database
         $roles = Role::all();
 

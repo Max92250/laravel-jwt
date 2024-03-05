@@ -45,6 +45,16 @@ class Product extends Model
     {
         return $this->belongsTo(User::class, 'updated_by', 'id');
     }
+    
+    public function orders()
+    {
+        return $this->belongsToMany(Order::class)->withPivot('quantity', 'item_id');
+    }
 
+ /*   public function item()
+{
+    return $this->belongsTo(Item::class, 'order_product', 'product_id', 'item_id');
+}
+*/
   
 }

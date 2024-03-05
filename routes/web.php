@@ -1,12 +1,9 @@
 <?php
 
-<<<<<<< HEAD
 use App\Http\Controllers\Frontend\CartController;
 use App\Http\Controllers\Frontend\CheckoutController;
 use App\Http\Controllers\Frontend\ShipmentController;
 use App\Http\Controllers\Frontend\OrderController;
-=======
->>>>>>> RoleandPermission
 use App\Http\Controllers\Frontend\MemberDashboardController;
 use App\Http\Controllers\Frontend\MemberLoginController;
 use App\Http\Controllers\Frontend\MemberProductController;
@@ -15,10 +12,8 @@ use App\Http\Controllers\web\CategoryController;
 use App\Http\Controllers\web\CustomerController;
 use App\Http\Controllers\web\ImageController;
 use App\Http\Controllers\web\MemberSignupController;
-<<<<<<< HEAD
-=======
+use App\Http\Controllers\web\MemberController;
 use App\Http\Controllers\web\PermissionController;
->>>>>>> RoleandPermission
 use App\Http\Controllers\web\ProductController;
 use App\Http\Controllers\web\ProfileController;
 use App\Http\Controllers\web\RoleController;
@@ -46,7 +41,7 @@ Route::middleware(['auth'])->group(function () {
 
         // User Routes
         Route::post('/users', [UserController::class, 'create'])->name('Users.Store');
-        Route::get('/users', [UserController::class, 'show'])->name('users.details');
+        Route::get('/user', [UserController::class, 'show'])->name('user.detail');
         Route::get('/customers/{customerId}/users', [UserController::class, 'customer_users'])->name('user.dashboard');
         Route::put('/users/{id}/update', [UserController::class, 'update'])->name('users.update');
 
@@ -82,6 +77,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/role', [PermissionController::class, 'index'])->name('roles.index');
         Route::get('/users/{userId}/permissions', [PermissionController::class, 'edit'])->name('roles.permissions');
         Route::post('/roles/{roleId}/permissions/update', [PermissionController::class, 'updatePermissions'])->name('update.permissions');
+
+        //member
+        Route::get('/members', [MemberController::class, 'index'])->name('members.index');
+        Route::get('/members/{id}', [MemberController::class, 'show']) ->name('members.show');
+
 
         //Role Route
 

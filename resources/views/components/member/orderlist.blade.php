@@ -18,13 +18,12 @@
                     <!-- Add more table cells with order data as needed -->
                 
 
-                @foreach ($order->products as $product )
+              {{-- @foreach ($order->products as $product )
 
                 {{$product->name}}
-
-                <td>{{ $product->item ? $product->item->price : 'No Item Associated' }}</td>
             
                 @endforeach
+         --}}
             @endforeach
         </tbody>
     </table>

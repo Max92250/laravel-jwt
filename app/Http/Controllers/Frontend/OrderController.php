@@ -20,49 +20,45 @@ class OrderController extends Controller
         try {
             DB::beginTransaction();
             $member = auth()->guard('members')->user();
-
+    
             // Validate the incoming request data
-            $request->validate([
-                'payment_method' => ['required', Rule::in(['credit_card', 'paypal', 'debit_card'])],
-                'card_number' => ['required_if:payment_method,credit_card,debit_card', 'string', 'max:16', new ValidCreditCard],
-                'expiration_date' => ['required_if:payment_method,credit_card,debit_card', 'string', 'max:20', new ValidExpirationDate],
-                'cvv' => 'required_if:payment_method,credit_card,debit_card|string|max:3',
-            ]);
-
+    
             // Calculate total amount
             $totalAmount = $request->input('selected_total_price');
-
+    
             // Calculate remaining balance
             $remainingBalance = $member->credits()->sum('amount') - $totalAmount;
+    
+            // Get the credit IDs
+            $creditIds = $member->credits()->pluck('credits.id')->toArray();
 
+   
             // Check if remaining balance is sufficient
             if ($remainingBalance >= 0) {
-                // Create payment record
-                $paymentData = [
-                    'member_id' => $member->id,
-                    'payment_method' => $request->payment_method,
-                    'card_number' => $request->card_number,
-                    'expiration_date' => $request->expiration_date,
-                    'cvv' => $request->cvv,
-                ];
 
-                $payment = Payment::create($paymentData);
+                $totalQuantity = 0;
+                foreach ($member->cart->items as $cartItem) {
+                    $totalQuantity += $cartItem->quantity;
+                }
+
+                
 
                 // Create order record
                 $orderData = [
                     'member_id' => $member->id,
                     'shipment_id' => $request->input('selected_shipment_id'),
-                    'payment_id' => $payment->id,
+                    'payment_id' => $creditIds[0], // Use the first credit ID as the payment ID
                     'total' => $totalAmount,
+                    'quantity' => $totalQuantity, // Include total quantity here
                 ];
-
+    
                 $order = Order::create($orderData);
 
-                // Deduct amount from member's credit
-                $credit = $member->credits()->first();
-                $credit->amount -= $totalAmount;
-                $credit->save();
-
+                    // Deduct amount from member's credit
+                    $credit = $member->credits();
+                    $newCreditAmount = $credit->sum('amount') - $totalAmount;
+                   $credit->update(['amount' => $newCreditAmount]);
+    
                 // Attach products to the order
                 foreach ($member->cart->items as $cartItem) {
                     $order->products()->attach($cartItem->product->id, [
@@ -70,31 +66,32 @@ class OrderController extends Controller
                         'quantity' => $cartItem->quantity,
                     ]);
                 }
-
+    
                 // Delete cart items
                 $member->cart->items()->delete();
-
+    
                 DB::commit();
-
+    
+                return redirect()->route('orders.index')->with('success', 'Order placed successfully.');
+    
                 // Redirect to a success page or return a success response
             } else {
                 DB::rollBack();
                 return redirect()->back()->with('error', 'Insufficient Balance');
             }
-
         } catch (\Exception $exception) {
             DB::rollBack();
-            return redirect()->back()->with('error', 'failed to order');
-
+            dd($exception);
+    
+            return redirect()->back()->with('error', 'Failed to place order');
         }
     }
-
+    
     public function index()
     {
         $member = auth()->guard('members')->user();
         $orders = $member->orders()->with('products')->get();
 
-        return $orders;
 
        return  view('components.member.orderlist',compact('orders'));
     }

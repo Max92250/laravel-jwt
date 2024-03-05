@@ -31,7 +31,7 @@ class Customer extends Model
     }
     public function member()
     {
-        return $this->hasOne(Member::class,'customer_id');
+        return $this->hasMany(Member::class,'customer_id');
     }
     public function category()
     {

@@ -15,16 +15,16 @@ class CategoryController extends Controller
 
     public function update(Request $request, $id)
     {
-        
+
         // Find the category by ID
         $category = Category::findOrFail($id);
 
         // Validate the incoming data from the client-side
         $request->validate([
-            'name' => 'required|string|unique:categories,name,' . $id,
+            'name' => 'required|string|unique:categories,name,' . $id . ',id,customer_id,' . auth()->guard('members')->user()->customer_id,
             'status' => 'sometimes|required|in:0,1', // Assuming status can be either 0 or 1
         ]);
-        
+
         // Update the customer details if changes are made
         if ($request->filled('name')) {
             $category->name = $request->input('name');
@@ -81,7 +81,7 @@ class CategoryController extends Controller
     private function validateCategory(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|unique:categories',
+            'name' => 'required|string|unique:categories,name,NULL,id,customer_id,' . auth()->user()->customer_id,
         ]);
     }
 

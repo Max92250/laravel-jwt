@@ -59,7 +59,11 @@ class User extends Authenticatable implements JWTSubject
     {
         $this->roles()->detach($role);
     }
-    
+
+    public function customer()
+    {
+        return $this->belongsTo(customer::class,'customer_id');
+    }
    /* public function can($permissions, $arguments = [])
     {
         $permissions = is_array($permissions) ? $permissions : [$permissions];

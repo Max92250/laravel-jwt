@@ -1,9 +1,9 @@
 <?php
 
 namespace App\Http\Controllers\Frontend;
+
 use App\Http\Controllers\Controller;
 use App\Models\Product;
-use Illuminate\Http\Request;
 
 class MemberProductController extends Controller
 {
@@ -12,15 +12,20 @@ class MemberProductController extends Controller
     {
         $member = auth()->guard('members')->user();
         $amounts = $member->credits()->pluck('amount');
-       
-        
+
+        $product = Product::findOrFail($id);
+
+        if ($member->customer_id !== $product->customer_id) {
+            abort(403, 'Unauthorized');
+        }
+
         $products = Product::where('id', $id)
             ->with(['items' => function ($query) {
                 $query->where('status', 'active');
             }, 'images'])
             ->get();
- 
-        return view('components.member.details', compact('products','amounts'));
-    
+
+        return view('components.member.details', compact('products', 'amounts'));
+
     }
 }

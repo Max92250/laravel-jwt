@@ -25,9 +25,7 @@ class ShipmentController extends Controller
         // Perform validation
         $validatedData = $request->validate($validationRules);
     
-        if ($validatedData->fails()) {
-            return redirect()->back()->withErrors($validatedData)->withInput();
-        }
+     
     
         // Add the member_id to the validated data
         $validatedData['member_id'] = $member->id;

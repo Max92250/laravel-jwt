@@ -9,6 +9,7 @@ class Order extends Model
         'member_id',
         'shipment_id',
         'payment_id',
+        'quantity',
         'total',
     ];
 
@@ -24,7 +25,7 @@ class Order extends Model
 
     public function payment()
     {
-        return $this->belongsTo(Payment::class);
+        return $this->belongsTo(Credit::class,'shipment_id','id');
     }
 
     public function products()
@@ -32,6 +33,6 @@ class Order extends Model
         return $this->belongsToMany(Product::class)->withPivot('item_id','quantity');
     }
 
-
+  
  
 }
