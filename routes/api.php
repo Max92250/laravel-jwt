@@ -14,7 +14,7 @@ Route::prefix('')->group(function () {
     Route::post('password/reset/{token}', [PasswordResetController::class, 'reset'])->name('password.reset');
 
     // Protected routes with JWT middleware
-
+    Route::middleware('jwt.verify')->group(function () {
         // GET Routes
         Route::get('/products', [ProductController::class, 'getAllProducts'])->name('products.all');
         Route::get('/products/{productId}', [ProductController::class, 'getProductById'])->name('products.get-by-id');
@@ -38,5 +38,5 @@ Route::prefix('')->group(function () {
 
         // Logout Route
         Route::get('/logout', [LogoutController::class, 'logout'])->name('users.logout');
-    
+    });
 });

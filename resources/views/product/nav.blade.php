@@ -39,7 +39,7 @@
                 <div class="relative mr-4">
                     @if (Auth::user()->isAdmin())
                         <!-- If user is admin, link to admin page -->
-                        <a href="{{ route('users.details') }}"
+                        <a href="{{ route('user.detail') }}"
                             class="text-black hover:text-gray-300 focus:outline-none">User</a>
                     @else
                         <!-- If user is not admin, link to user page -->
@@ -69,10 +69,34 @@
                     @endif
 
                 </div>
+                <div class="relative mr-4">
+                    @if (auth()->user()->Role('admin'))
+                        <a class="text-black hover:text-gray-300 focus:outline-none" href="{{route('signup')}}">Signup</a>
+                    @endif
+    
+                </div>
+                <div class="relative mr-4">
+                    @if (auth()->user()->Role('admin'))
+                        <a class="text-black hover:text-gray-300 focus:outline-none" href="{{route('role.index')}}">Permission</a>
+                    @endif
+    
+                </div>
 
+                <div class="relative mr-4">
+                    @if (auth()->user()->Role('admin'))
+                        <a class="text-black hover:text-gray-300 focus:outline-none" href="{{route('roles.index')}}">Roles</a>
+                    @endif
+
+                </div>
+                <div class="relative mr-4">
+                    @if (auth()->user()->Role('admin'))
+                        <a class="text-black hover:text-gray-300 focus:outline-none" href="{{route('members.index')}}">Members</a>
+                    @endif
+
+                </div>
 
             </div>
-
+        
             <!-- User Profile and Logout -->
             <div class="flex items-center">
                 @if (Auth::user()->isAdmin())
@@ -121,6 +145,7 @@
     @yield('section6')
     @yield('section7')
     @yield('section8')
+    @yield('section9')
     <script>
         function UserChange(select) {
             const selectedOption = select.options[select.selectedIndex].value;

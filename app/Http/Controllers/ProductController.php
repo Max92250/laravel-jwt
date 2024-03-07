@@ -11,9 +11,10 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\QueryException;
 use App\Traits\LogTrait;
 use Illuminate\Support\Facades\Http;
-
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use JWTAuth;
 
 use Illuminate\Http\Request; // Import the Request class
 
@@ -188,17 +189,17 @@ class ProductController extends Controller
         return response()->json($result);
     }
 
-    public function getAllProducts()
+    public function getAllProducts(Request $request)
     {
+        $token = JWTAuth::fromUser($request->user());
+    
+        // Get product data
+        $products = Product::all();
+    
+        // Return product data along with token in response header
+        return response()->json(['products' => $products])->withheader('Authorization', 'Bearer ' . $token);
          // Get all products that have active items
-        $products = Product::with(['items', 'images','categories'])
-            ->whereHas('items', function (Builder $query) {
-                $query->where('status', '=', 'active');
-            })
-            ->get();
-            
-    // Return the products as a collection of ProductResource objects
-        return ProductResource::collection($products);
+      
     }
 
     public function getProductById($productId)

@@ -1,11 +1,22 @@
 <?php
 
+use App\Http\Controllers\Frontend\CartController;
+use App\Http\Controllers\Frontend\CheckoutController;
+use App\Http\Controllers\Frontend\ShipmentController;
+use App\Http\Controllers\Frontend\OrderController;
+use App\Http\Controllers\Frontend\MemberDashboardController;
+use App\Http\Controllers\Frontend\MemberLoginController;
+use App\Http\Controllers\Frontend\MemberProductController;
 use App\Http\Controllers\web\AuthenticationController;
 use App\Http\Controllers\web\CategoryController;
 use App\Http\Controllers\web\CustomerController;
 use App\Http\Controllers\web\ImageController;
+use App\Http\Controllers\web\MemberSignupController;
+use App\Http\Controllers\web\MemberController;
+use App\Http\Controllers\web\PermissionController;
 use App\Http\Controllers\web\ProductController;
 use App\Http\Controllers\web\ProfileController;
+use App\Http\Controllers\web\RoleController;
 use App\Http\Controllers\web\SizeController;
 use App\Http\Controllers\web\UserController;
 use Illuminate\Support\Facades\Route;
@@ -30,7 +41,7 @@ Route::middleware(['auth'])->group(function () {
 
         // User Routes
         Route::post('/users', [UserController::class, 'create'])->name('Users.Store');
-        Route::get('/users', [UserController::class, 'show'])->name('users.details');
+        Route::get('/user', [UserController::class, 'show'])->name('user.detail');
         Route::get('/customers/{customerId}/users', [UserController::class, 'customer_users'])->name('user.dashboard');
         Route::put('/users/{id}/update', [UserController::class, 'update'])->name('users.update');
 
@@ -62,7 +73,52 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/category/products/image/{product_id}', [ImageController::class, 'store'])->name('imagecreate');
         Route::post('category/products/images', [ImageController::class, 'create'])->name('products.createWithImages');
         Route::get('/images/{id}', [ImageController::class, 'delete'])->name('images.delete');
+        //Permissions Route
+        Route::get('/role', [PermissionController::class, 'index'])->name('roles.index');
+        Route::get('/users/{userId}/permissions', [PermissionController::class, 'edit'])->name('roles.permissions');
+        Route::post('/roles/{roleId}/permissions/update', [PermissionController::class, 'updatePermissions'])->name('update.permissions');
+
+        //member
+        Route::get('/members', [MemberController::class, 'index'])->name('members.index');
+        Route::get('/members/{id}', [MemberController::class, 'show']) ->name('members.show');
+
+
+        //Role Route
+
+        Route::get('/users', [RoleController::class, 'index'])->name('role.index');
+        Route::get('/users/{userId}/edit-roles', [RoleController::class, 'editUserRoles'])->name('users.editRoles');
+        Route::put('/users/{userId}/update-roles', [RoleController::class, 'updateRoles'])->name('users.updateRoles');
+
+        //Mmember signup
+        Route::get('/signup', [MemberSignupController::class, 'showSignupForm'])->name('signup');
+        Route::post('/signup', [MemberSignupController::class, 'signup'])->name('member.signup');
 
     });
 
 });
+
+//member login
+
+Route::get('/member/login', [MemberLoginController::class, 'showLoginForm'])->name('member.login');
+Route::post('/member/login', [MemberLoginController::class, 'login'])->name('login.member');
+
+Route::middleware(['auth.member'])->group(function () {
+    Route::get('/member/dashboard', [MemberDashboardController::class, 'index'])->name('member.dashboard');
+    Route::get('/categroy/{category}/product', [MemberDashboardController::class, 'productsbycategory'])->name('products.by.category');
+    Route::get('/product/{id}/details', [MemberProductController::class, 'show'])->name('product.show');
+    Route::post('/add-to-cart', [CartController::class, 'addItemToCart'])->name('add-to-cart');
+    Route::get('/cart', [CartController::class, 'show'])->name('cart.show');
+    Route::post('/update_quantity', [CartController::class, 'updateQuantity']);
+    Route::post('/delete_item', [CartController::class, 'deleteItem']);
+    Route::post('/update-cart-counter', [CartController::class, 'updateCartCounter'])->name('update.cart.counter');
+    // routes/web.php
+    Route::get('/checkout/cart/{cart_id}', [CheckoutController::class, 'show'])->name('checkout.details');
+    Route::post('/shipmentaddress', [ShipmentController::class, 'store'])->name('shipment.store');
+    Route::get('/shipmentaddress/{id}/delete', [ShipmentController::class, 'destroy'])->name('delete.shipment');
+    Route::post('/logout', [MemberLoginController::class, 'logout'])->name('member.logout');
+    Route::post('/place-order', [OrderController::class, 'placeOrder'])->name('place.order');
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+
+
+});
+

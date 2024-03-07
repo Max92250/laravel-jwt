@@ -16,6 +16,7 @@ class AuthenticationController extends Controller
 
     public function loginform()
     {
+        
         return view('User.login');
     }
 

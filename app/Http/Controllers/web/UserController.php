@@ -70,26 +70,33 @@ class UserController extends Controller
     }
     public function update(Request $request, $id)
     {
-
         $user = User::findOrFail($id);
-
+    
         // Validate the incoming data from the client-side
         $validator = $request->validate([
             'username' => 'sometimes|required|string|unique:users,username,' . $id,
+            'status' => 'sometimes|required|in:0,1', // Assuming status can be either 0 or 1
         ]);
-
+    
         // Update the username if changes are made
         if ($request->filled('username')) {
             $user->username = $request->input('username');
         }
+    
+        // Update the status if changes are made
+        if ($request->filled('status')) {
+            $user->status = $request->input('status');
+        }
+    
+        // Set the ID of the admin user who is updating
         $adminUser = Auth::user();
         $user->updated_by = $adminUser->id;
-
+    
         // Save the changes
         $user->save();
-
+    
         return redirect()->back()->with('success', 'User details updated successfully.');
-
     }
+    
 
 }

@@ -17,45 +17,24 @@ class loginController extends Controller
 {
     public function login(Request $request)
 {
+    // Validate user input
     $credentials = $request->only('email', 'password');
-
     $validator = Validator::make($credentials, [
-        'email' => 'required|string',
-        'password' => 'required|string',
+        'email' => 'required|email',
+        'password' => 'required',
     ]);
 
     if ($validator->fails()) {
-        return response()->json(['error' => $validator->messages()], 422);
+        return response()->json(['error' => 'Invalid credentials'], 422);
     }
 
-    try {
-        $token = JWTAuth::attempt($credentials);
-
-        if (!$token) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Invalid credentials.',
-            ], 401);
-        }
-
-        $user = User::where('email', $credentials['email'])->first();
-
-            if ($user && $user->active == 0) {
-                $user->update(['active' => 1]);
-               
-            }
-       
-        return response()->json([
-            'success' => true,
-            'data' => ['token' => $token],
-        ]);
-
-    } catch (JWTException $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Could not create token.',
-        ], 500);
+    // Attempt to authenticate user
+    if (!$token = JWTAuth::attempt($credentials)) {
+        return response()->json(['error' => 'Unauthorized'], 401);
     }
+
+    // Authentication successful, return token in response header
+    return response()->json(['token' => $token])->header('Authorization', 'Bearer ' . $token);
 }
     
     
