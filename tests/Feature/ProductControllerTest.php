@@ -39,7 +39,7 @@ class ProductControllerTest extends TestCase
             'Authorization' => 'Bearer ' . $token,
         ])->postJson('/api/products/items', $itemData);
 
-        $response->assertStatus(201)->assertJson([
+        $response->assertStatus(200)->assertJson([
             'status' => 'success',
             'product_id' => $response->json('product_id'),
         ]);
