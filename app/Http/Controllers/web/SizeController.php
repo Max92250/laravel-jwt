@@ -36,6 +36,7 @@ class SizeController extends Controller
         // Validate the incoming request
         $request->validate([
             'sizeName' => 'required|string|max:255', // Assuming 'sizeName' is the name of the input field
+            'status' => 'sometimes|required|in:0,1', // Assuming status can be either 0 or 1
         ]);
 
         $user = Auth::user();
@@ -47,6 +48,7 @@ class SizeController extends Controller
             // Update the size name
             $size->update([
                 'name' => $request->input('sizeName'),
+                'status'=>$request->input('status'),
                 'updated_by' => $request->user()->id,
 
             ]);
@@ -93,7 +95,7 @@ class SizeController extends Controller
         $request->validate([
             'name' => 'required|string',
             'parent_id' => 'nullable|exists:sizes,id',
-            'status' => 'nullable|in:active,inactive',
+            'status' => 'required|in:0,1', // Assuming status can be either 0 or 1
 
         ]);
 

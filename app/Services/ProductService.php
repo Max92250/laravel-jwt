@@ -54,8 +54,6 @@ public function createProductWithItems(array $productData, array $itemsData, arr
     }
 }
 
-
-
     public function createProductWithImages(int $productId, array $imageFiles)
     {
         try {
@@ -96,7 +94,6 @@ public function createProductWithItems(array $productData, array $itemsData, arr
                 $product->update($productData);
                 
          
-
                 if (!empty($categoryId)) {
                     
                     $product->categories()->sync($categoryId);

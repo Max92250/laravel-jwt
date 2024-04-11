@@ -5,7 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Models\Role;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -36,12 +36,12 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->belongsTo(User::class, 'created_by');
     }
-
+  
     public function hasRole($role)
     {
         return $this->type === $role;
     }
-    public function roles(): BelongsToMany
+    public function roles()
     {
         return $this->belongsToMany(Role::class);
     }
@@ -60,6 +60,24 @@ class User extends Authenticatable implements JWTSubject
         $this->roles()->detach($role);
     }
 
+    public function customer()
+    {
+        return $this->belongsTo(customer::class,'customer_id');
+    }
+   /* public function can($permissions, $arguments = [])
+    {
+        $permissions = is_array($permissions) ? $permissions : [$permissions];
+        
+        foreach ($this->roles as $role) {
+            foreach ($permissions as $permission) {
+                if ($role->permissions()->where('name', $permission)->exists()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    */
     public function hasPermission(string $permissionName): bool
     {
         // Retrieve all roles associated with the user

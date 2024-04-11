@@ -4,13 +4,13 @@ namespace App\Http\Controllers\web;
 
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
-use App\Models\User;
 use App\Models\Product;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\Auth;
+
 class CustomerController extends Controller
 {
 
@@ -50,29 +50,32 @@ class CustomerController extends Controller
 
     public function show(Request $request)
     {
-        
+
         $userRole = Auth::user()->type;
 
         // Fetch data based on the user's role
         if ($userRole === 'admin') {
             $customers = Customer::with('createdBy', 'updatedBy')->get();
             return view('admin.dashboard', ['customers' => $customers]);
-        }
-        elseif ($userRole === 'user') {
-            
-            $customer = Customer::where('id', $request->user()->customer_id)->first();
-    
-            if ($customer) {
-                // Fetch products for the user's customer
-                $products = Product::where('customer_id', $customer->id)->with('createdBy', 'updatedBy')->latest()->get();
-    
-                return view('admin.dashboard', ['products' => $products]);
+        } elseif ($userRole === 'user') {
+
+            if (auth()->user()->hasPermission('access-dashboard')) {
+                $customer = Customer::where('id', $request->user()->customer_id)->first();
+
+                if ($customer) {
+                    // Fetch products for the user's customer
+                    $products = Product::where('customer_id', $customer->id)->with('createdBy', 'updatedBy')->latest()->get();
+
+                    return view('admin.dashboard', ['products' => $products]);
+                }
+            } else {
+                abort(403);
             }
+
         }
-    
+
     }
 
-      
     public function search(Request $request)
     {
 
@@ -99,12 +102,12 @@ class CustomerController extends Controller
     {
         // Validate the incoming data from the client-side
         $customer = Customer::find($id);
-    
+
         $validator = $request->validate([
             'name' => 'sometimes|required|string',
             'identifier' => 'sometimes|required|string|unique:customers,identifier,' . $id, 
+            'status' => 'sometimes|required|in:0,1', // Assuming status can be either 0 or 1
         ]);
-
 
         // Update the customer details if changes are made
         if ($request->filled('name')) {
@@ -113,13 +116,18 @@ class CustomerController extends Controller
         if ($request->filled('identifier')) {
             $customer->identifier = $request->input('identifier');
         }
+
+        if ($request->filled('status')) {
+            $customer->status = $request->input('status');
+        }
+    
         // Update other fields as needed
         $customer->updated_by = $request->user()->id;
 
         // Save the changes
         $customer->save();
-    
+
         return redirect()->back()->with('success', 'Customer updated successfully.');
     }
-    
+
 }
